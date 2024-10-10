@@ -1,6 +1,6 @@
 package io.hhplus.concert.controller;
 
-import io.hhplus.concert.usecase.*;
+import io.hhplus.concert.usecase.concert.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;

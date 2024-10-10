@@ -1,8 +1,8 @@
 package io.hhplus.concert.controller;
 
-import io.hhplus.concert.usecase.ChargeUserPointUseCase;
-import io.hhplus.concert.usecase.IssueTokenUseCase;
-import io.hhplus.concert.usecase.RetrieveUserPointUseCase;
+import io.hhplus.concert.usecase.user.ChargeUserPointUseCase;
+import io.hhplus.concert.usecase.user.IssueTokenUseCase;
+import io.hhplus.concert.usecase.user.RetrieveUserPointUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 

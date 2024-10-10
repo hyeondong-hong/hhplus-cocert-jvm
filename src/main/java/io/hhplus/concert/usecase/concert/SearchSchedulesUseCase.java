@@ -1,4 +1,4 @@
-package io.hhplus.concert.usecase;
+package io.hhplus.concert.usecase.concert;
 
 import lombok.Data;
 import org.springframework.stereotype.Service;
