@@ -29,7 +29,7 @@ erDiagram
         bigint id PK "auto increment"
         bigint user_id FK
         int remains
-        enum transaction "(charged, used)"
+        varchar(10) transaction_type "(charged, used)"
         int changed
     }
 
@@ -43,23 +43,29 @@ erDiagram
 
     concert {
         bigint id PK "auto increment"
-        varchar(50) title "varchar(50)"
-        int price
+        varchar(50) title
+        varchar(100) cast "nullable"
     }
 
     concert_schedule {
         bigint id PK "auto increment"
-        bigint concert_id
+        bigint concert_id FK
         timestamp scheduled_at
-        smallint seat_limit "default 50"
+    }
+
+    concert_seat {
+        bigint id PK "auto increment"
+        bigint concert_schedule_id FK
+        varchar(5) label "nullable"
+        smallint seat_number
+        int price
     }
 
     reservation {
         bigint id PK "auto increment"
         bigint user_id FK
-        bigint concert_schedule_id FK
-        smallint seat_number
-        enum status "(temp, pending, complete, cancelled)"
+        bigint concert_seat_id FK
+        varchar(10) status "(temp, pending, complete, cancelled)"
         bigint payment_id FK "unique"
     }
 
@@ -67,7 +73,7 @@ erDiagram
         bigint id PK "auto increment"
         bigint user_id FK
         int price
-        enum status "(pending, paid, refunded, cancelled)"
+        varchar(10) status "(pending, paid, refunded, cancelled)"
         timestamp due_at "nullable"
         timestamp paid_at "nullable"
     }
@@ -75,8 +81,8 @@ erDiagram
     payment_transaction {
         bigint id PK "auto increment"
         bigint payment_id FK
-        enum method "(point)"
-        enum status "(purchase, refund)"
+        varchar(10) method "(point)"
+        varchar(10) status "(purchase, refund)"
         int amount
         timestamp created_at
     }
@@ -89,7 +95,9 @@ erDiagram
 
     concert ||--o{ concert_schedule : "하나의 콘서트는 여러 스케줄을 가질 수 있다 - 1:N"
 
-    concert_schedule ||--o{ reservation : "하나의 스케줄에 여러 사람이 예약할 수 있다 - 1:N"
+    concert_schedule ||--o{ concert_seat : "하나의 스케줄에 여러 좌석이 존재한다 - 1:N"
+    
+    concert_seat ||--o{ reservation : "하나의 좌석에 여러 상태의 예약이 존재할 수 있다 - 1:N"
     
     reservation ||--|| payment : "각 예약이 결제해야하는 하나의 정보를 담고 있으므로 - 1:1"
 

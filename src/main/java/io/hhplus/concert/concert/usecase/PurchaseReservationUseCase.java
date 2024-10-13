@@ -1,4 +1,4 @@
-package io.hhplus.concert.usecase.concert;
+package io.hhplus.concert.concert.usecase;
 
 import lombok.Data;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,6 @@ public class PurchaseReservationUseCase {
     }
     public record Output(
             Long reservationId,
-            Long userId,
             Long paymentId,
             String paymentStatus
     ) {}
