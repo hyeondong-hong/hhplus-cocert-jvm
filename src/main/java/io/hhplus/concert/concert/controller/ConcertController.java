@@ -1,13 +1,13 @@
-package io.hhplus.concert.controller;
+package io.hhplus.concert.concert.controller;
 
-import io.hhplus.concert.usecase.concert.*;
+import io.hhplus.concert.concert.usecase.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/a/concerts")
+@RequestMapping("/api/1.0/concerts")
 public class ConcertController {
 
     @GetMapping("")
@@ -79,7 +79,6 @@ public class ConcertController {
     ) {
         return new PurchaseReservationUseCase.Output(
                 reservationId,
-                input.getUserId(),
                 1L,
                 "paid"
         );

@@ -2,17 +2,14 @@ spring:
   application:
     name: hhplus-concert-jvm
   datasource:
-    url: jdbc:h2:file:~/concert-db
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
+    url: jdbc:mysql://localhost:3306/hhplus_concert
+    username: hhplus
+    password: hhplus1!
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
     properties:
-      hibernate.connection.isolation: 2  # READ_COMMITTED
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
     show-sql: false
-    open-in-view: false

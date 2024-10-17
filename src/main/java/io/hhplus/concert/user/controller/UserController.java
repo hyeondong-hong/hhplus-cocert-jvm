@@ -1,13 +1,13 @@
-package io.hhplus.concert.controller;
+package io.hhplus.concert.user.controller;
 
-import io.hhplus.concert.usecase.user.ChargeUserPointUseCase;
-import io.hhplus.concert.usecase.user.IssueTokenUseCase;
-import io.hhplus.concert.usecase.user.RetrieveUserPointUseCase;
+import io.hhplus.concert.user.usecase.ChargeUserPointUseCase;
+import io.hhplus.concert.user.usecase.IssueTokenUseCase;
+import io.hhplus.concert.user.usecase.RetrieveUserPointUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/a/users")
+@RequestMapping("/api/1.0/users")
 public class UserController {
 
     @ResponseStatus(HttpStatus.CREATED)

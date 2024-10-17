@@ -2,7 +2,7 @@
 
 * user - 이용자 정보
   * user_point - 이용자 포인트 잔량 정보
-  * point_history - 포인트 충전/사용 이력
+  * point_transaction - 포인트 충전/사용 이력
 * token - 이용자 대기열에 대한 토큰
 * concert - 공연 정보
   * concert_schedule - 공연 일정 및 좌석 정보
@@ -25,72 +25,91 @@ erDiagram
         int remains "default 0"
     }
 
-    point_history {
-        bigint id PK "auto increment"
-        bigint user_id FK
+    point_transaction {
+        bigint id PK
+        bigint user_point_id FK
         int remains
-        enum transaction "(charged, used)"
-        int changed
+        int amount
+        varchar(10) status "(pending, complete, cancelled)"
+        varchar(10) type "(charged, used)"
+        bigint payment_id FK "unique"
     }
 
     token {
-        varchar(40) key PK
-        bigint user_id FK "unique"
-        timestamp created_at
-        int priority
-        timestamp expire_at "nullable"
+        bigint id PK
+        bigint user_id FK
+        varchar(40) keyUuid "unique"
+        timestamp expires_at "nullable"
+    }
+
+    service_entry {
+        bigint id PK "auto increment"
+        bigint token_id FK "unique"
+        timestamp entry_at
     }
 
     concert {
         bigint id PK "auto increment"
-        varchar(50) title "varchar(50)"
-        int price
+        varchar(50) title
+        varchar(100) cast "nullable"
     }
 
     concert_schedule {
         bigint id PK "auto increment"
-        bigint concert_id
+        bigint concert_id FK
         timestamp scheduled_at
-        smallint seat_limit "default 50"
+    }
+
+    concert_seat {
+        bigint id PK "auto increment"
+        bigint concert_schedule_id FK
+        varchar(5) label "nullable"
+        smallint seat_number
+        decimal price
     }
 
     reservation {
         bigint id PK "auto increment"
         bigint user_id FK
-        bigint concert_schedule_id FK
-        smallint seat_number
-        enum status "(temp, pending, complete, cancelled)"
+        bigint concert_seat_id FK
+        varchar(10) status "(pending, complete, cancelled)"
         bigint payment_id FK "unique"
     }
 
     payment {
         bigint id PK "auto increment"
         bigint user_id FK
-        int price
-        enum status "(pending, paid, refunded, cancelled)"
-        timestamp due_at "nullable"
+        decimal price
+        varchar(10) status "(pending, paid, refunded, cancelled)"
+        timestamp due_at
         timestamp paid_at "nullable"
     }
 
     payment_transaction {
         bigint id PK "auto increment"
         bigint payment_id FK
-        enum method "(point)"
-        enum status "(purchase, refund)"
-        int amount
+        varchar(10) method "(point)"
+        varchar(10) status "(purchase, refund)"
+        decimal amount
         timestamp created_at
     }
 
     user ||--|| user_point : "유저 한 명당 하나의 포인트 - 1:1"
-    user ||--o{ point_history : "유저가 포인트를 충전하거나 사용한 내역 - 1:N"
-    user ||--|| token : "토큰은 유저의 서비스에 대한 대기열 정보를 포함하므로 - 1:1"
+    user ||--o{ token : "유저는 토큰을 원하는 만큼 발행할 수 있다 - 1:N"
     user ||--o{ reservation : "대기열 한 사이클이 끝나면 다시 예약 가능 - 1:N"
     user ||--o{ payment : "결제 내역은 여러개일 수 있다 - 1:N"
 
+    user_point ||--o{ point_transaction : "포인트는 여러번 충전될 수 있다 - 1:N"
+
+    token ||--|| service_entry : "서비스에 대한 대기열 토큰은 여러개가 될 수 없기 때문에 - 1:1"
+
     concert ||--o{ concert_schedule : "하나의 콘서트는 여러 스케줄을 가질 수 있다 - 1:N"
 
-    concert_schedule ||--o{ reservation : "하나의 스케줄에 여러 사람이 예약할 수 있다 - 1:N"
+    concert_schedule ||--o{ concert_seat : "하나의 스케줄에 여러 좌석이 존재한다 - 1:N"
     
+    concert_seat ||--o{ reservation : "하나의 좌석에 여러 상태의 예약이 존재할 수 있다 - 1:N"
+    
+    point_charge ||--|| payment : "각 포인트 충전이 결제해야 하는 하나의 정보를 담고 있으므로 - 1:1"
     reservation ||--|| payment : "각 예약이 결제해야하는 하나의 정보를 담고 있으므로 - 1:1"
 
     payment ||--o{ payment_transaction : "결제 정보 하나에 여러 결제 처리가 이뤄질 수 있다 - 1:N"

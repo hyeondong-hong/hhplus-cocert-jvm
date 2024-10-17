@@ -1,23 +1,22 @@
-package io.hhplus.concert.usecase.concert;
+package io.hhplus.concert.concert.usecase;
 
 import lombok.Data;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class SearchConcertUseCase {
+public class SearchSeatsUseCase {
 
     @Data
     public static class Input {
     }
     public record Output(
-            Long concertId,
-            String title
+            Long concertScheduleId,
+            List<Integer> seatNumbers
     ) {}
 
-    public List<Output> execute(Input input) {
+    public Output execute(Input input) {
         return null;
     }
 }

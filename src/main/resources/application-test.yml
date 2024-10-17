@@ -1,9 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:concert-db
-  h2:
-    console:
-      enabled: false
+    url: jdbc:mysql://localhost:3306/hhplus_concert_test
   jpa:
     hibernate:
       ddl-auto: create-drop
