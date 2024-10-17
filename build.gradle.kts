@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "io.hhplus"
-version = "0.0.1-SNAPSHOT"
+version = "1.0"
 
 java {
     toolchain {
@@ -22,13 +22,15 @@ repositories {
 }
 
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
     compileOnly("org.projectlombok:lombok")
-    runtimeOnly("com.h2database:h2")
     annotationProcessor("org.projectlombok:lombok")
+    runtimeOnly("com.mysql:mysql-connector-j")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -40,28 +42,28 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-val snippetsDir = file("build/generated-snippets")
-
-tasks.named<Test>("test") {
-    outputs.dir(snippetsDir)
+//val snippetsDir = file("build/generated-snippets")
+//
+//tasks.named<Test>("test") {
+//    outputs.dir(snippetsDir)
 //    doFirst {
 //        delete(snippetsDir)
 //    }
-}
-
-tasks.named<AsciidoctorTask>("asciidoctor") {
-    inputs.dir(snippetsDir)
-    dependsOn(tasks.test)
-    attributes(
-        mapOf("snippets" to snippetsDir.absolutePath)
-    )
-    outputOptions {
-        setOutputDir(file("build/docs/asciidoc"))
-    }
-}
-
-tasks.register<Copy>("copyRestDocs") {
-    from("build/docs/asciidoc")
-    into("src/main/resources/static/docs")
-    dependsOn(tasks.withType<AsciidoctorTask>())
-}
+//}
+//
+//tasks.named<AsciidoctorTask>("asciidoctor") {
+//    inputs.dir(snippetsDir)
+//    dependsOn(tasks.test)
+//    attributes(
+//        mapOf("snippets" to snippetsDir.absolutePath)
+//    )
+//    outputOptions {
+//        setOutputDir(file("build/docs/asciidoc"))
+//    }
+//}
+//
+//tasks.register<Copy>("copyRestDocs") {
+//    from("build/docs/asciidoc")
+//    into("src/main/resources/static/docs")
+//    dependsOn(tasks.withType<AsciidoctorTask>())
+//}
