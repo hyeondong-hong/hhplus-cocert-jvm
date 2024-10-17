@@ -35,9 +35,18 @@ public class AuthorizationHeaderFilter extends BasicAuthenticationFilter {
 
         String authorizationHeader = request.getHeader("Authorization");
 
+        String[] swaggerPaths = {
+                "^/v3/api-docs.*$", "^/swagger-ui.*$", "^/swagger-resources/.*$", "^/webjars/.*$"
+        };
         if (request.getRequestURI().matches("/api/1.0/users/\\d+/tokens")) {
             chain.doFilter(request, response);
             return;
+        }
+        for (String swaggerPath : swaggerPaths) {
+            if (request.getRequestURI().matches(swaggerPath)) {
+                chain.doFilter(request, response);
+                return;
+            }
         }
 
         if (authorizationHeader == null) {
