@@ -1,4 +1,4 @@
-package io.hhplus.concert.controller;
+package io.hhplus.concert.week3.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
