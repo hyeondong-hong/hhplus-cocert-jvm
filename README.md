@@ -11,7 +11,7 @@
 io/hhplus/concert
 ├── config
 └── {domain}
-    ├── controller
+    ├── presenter
     ├── domain
     ├── port
     └── usecase
@@ -25,21 +25,21 @@ io/hhplus/concert
 5. 비즈니스 요구사항을 하나의 독립적인 기능으로 정의하기 위해 각 유스케이스 클래스로 분리
 6. 서로 다른 도메인과의 상호작용은 포트를 통해 처리
 
-### 클린아키텍처의 유스케이스와 파사드패턴의 차이
+### 클린아키텍처의 유스케이스와 파사드패턴의 차이?
 
 #### 이하 내용은 추측
 1. 파사드
    - 여러 서비스를 조합해서 복잡한 비즈니스 요구사항을 처리하기 위해 사용
-   - 무신사 같은 서드파티(카카오, 네이버, 택배 서비스 등등) 연결 포인트가 많은 서비스에 유리함
+   - 무신사 같은 서드파티(카카오, 네이버, 택배 서비스 등등) 연결 포인트가 많은 서비스에 유리함?
 2. 유스케이스
    - 하나의 독립적인 비즈니스 요구사항을 단일 기능으로 처리하기 위해 사용
-   - 토스 같은 자사 내에서 완결되는 경우가 많은 서비스에서는 코드 복잡성을 최소화 할 수 있다는 장점
+   - 토스 같은 자사 내에서 완결되는 경우가 많은 서비스에서는 코드 복잡성을 최소화 할 수 있다는 장점?
 
 #### 추가 정보
-* 클린 아키텍처에서는 "서비스를 조합한다"는 케이스 자체가 없어야 한다.
+* 클린 아키텍처에서는 "서비스를 조합한다"는 케이스 자체가 없어지는 걸 추구.
 * 우리가 구현해야 하는 비즈니스 기능은 그 자체로 고유한 기능(UseCase)이어야 함.
 * 그렇지 않으면 단일책임원칙을 위반하게 되면서 하나의 기능 변경이 다른 기능에 사이드 이펙트를 주게 된다는 것.
-* 각자의 장단이 있다는 접근 보다는 어떤 철학으로 접근을 하느냐가 핵심인듯.
+* 각자의 장단이 있다는 접근 보다는 어떤 철학으로 접근을 하느냐가 핵심인 듯.
 
 
 ## 기술 스택
@@ -54,6 +54,8 @@ io/hhplus/concert
    - [RabbitMQ](https://www.rabbitmq.com/docs)
 
 ## API 명세
-* Spring REST Docs 명세 파일 - [index.adoc](./docs/asciidoc/index.adoc)
-
-![API Documentation](./docs/images/api-documentation.png)
+* Swagger 명세 경로 - `/swagger-ui/index.html`
+* 토큰 인증 방법
+![API Authorization](docs/images/api-authorization.png)
+* API 명세 스크린샷
+![API Documentation](docs/images/api-documentation.png)
