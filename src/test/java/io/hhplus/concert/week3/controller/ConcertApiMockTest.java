@@ -1,4 +1,4 @@
-package io.hhplus.concert.controller;
+package io.hhplus.concert.week3.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -50,7 +50,7 @@ public class ConcertApiMockTest {
     @DisplayName("콘서트를 조회한다")
     public void searchConcerts() throws Exception {
         RestDocumentationResultHandler handler = MockMvcRestDocumentation.document(
-                "concerts",
+                "concertResultPage",
                 Preprocessors.preprocessRequest(Preprocessors.prettyPrint()),
                 Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
                 PayloadDocumentation.responseFields(
@@ -60,7 +60,7 @@ public class ConcertApiMockTest {
         );
 
         mockMvc.perform(
-                get("/a/concerts")
+                get("/a/concertResultPage")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -72,7 +72,7 @@ public class ConcertApiMockTest {
     public void searchConcertSchedules() throws Exception {
         Long concertId = 1L;
         RestDocumentationResultHandler handler = MockMvcRestDocumentation.document(
-                "concerts/schedules",
+                "concertResultPage/schedules",
                 Preprocessors.preprocessRequest(Preprocessors.prettyPrint()),
                 Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
                 RequestDocumentation.pathParameters(
@@ -86,7 +86,7 @@ public class ConcertApiMockTest {
         );
 
         mockMvc.perform(
-                get("/a/concerts/{concertId}/schedules", concertId)
+                get("/a/concertResultPage/{concertId}/schedules", concertId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -99,7 +99,7 @@ public class ConcertApiMockTest {
         Long concertId = 1L;
         Long concertScheduleId = 1L;
         RestDocumentationResultHandler handler = MockMvcRestDocumentation.document(
-                "concerts/schedules/seats",
+                "concertResultPage/schedules/seatResults",
                 Preprocessors.preprocessRequest(Preprocessors.prettyPrint()),
                 Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
                 RequestDocumentation.pathParameters(
@@ -113,7 +113,7 @@ public class ConcertApiMockTest {
         );
 
         mockMvc.perform(
-                get("/a/concerts/{concertId}/schedules/{concertScheduleId}/seats", concertId, concertScheduleId)
+                get("/a/concertResultPage/{concertId}/schedules/{concertScheduleId}/seatResults", concertId, concertScheduleId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -127,7 +127,7 @@ public class ConcertApiMockTest {
         Long concertScheduleId = 1L;
         Integer seatNumber = 1;
         RestDocumentationResultHandler handler = MockMvcRestDocumentation.document(
-                "concerts/schedules/reservations",
+                "concertResultPage/schedules/reservations",
                 Preprocessors.preprocessRequest(Preprocessors.prettyPrint()),
                 Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
                 RequestDocumentation.pathParameters(
@@ -148,7 +148,7 @@ public class ConcertApiMockTest {
         {"userId": 1, "token": "token-info-long-hashed-text"}
         """;
         mockMvc.perform(
-                post("/a/concerts/{concertId}/schedules/{concertScheduleId}/reservations", concertId, concertScheduleId)
+                post("/a/concertResultPage/{concertId}/schedules/{concertScheduleId}/reservations", concertId, concertScheduleId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .accept(MediaType.APPLICATION_JSON))
@@ -164,7 +164,7 @@ public class ConcertApiMockTest {
         Long reservationId = 1L;
 
         RestDocumentationResultHandler handler = MockMvcRestDocumentation.document(
-                "concerts/schedules/reservations/purchase",
+                "concertResultPage/schedules/reservations/purchase",
                 Preprocessors.preprocessRequest(Preprocessors.prettyPrint()),
                 Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
                 RequestDocumentation.pathParameters(
@@ -184,7 +184,7 @@ public class ConcertApiMockTest {
         {"userId": 1, "token": "token-info-long-hashed-text"}
         """;
         mockMvc.perform(
-                patch("/a/concerts/{concertId}/schedules/{concertScheduleId}/reservations/{reservationId}", concertId, concertScheduleId, reservationId)
+                patch("/a/concertResultPage/{concertId}/schedules/{concertScheduleId}/reservations/{reservationId}", concertId, concertScheduleId, reservationId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .accept(MediaType.APPLICATION_JSON))
