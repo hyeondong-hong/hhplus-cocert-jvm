@@ -1,6 +1,5 @@
 package io.hhplus.concert.concert.port;
 
-import io.hhplus.concert.concert.domain.Concert;
 import io.hhplus.concert.concert.domain.ConcertSchedule;
 import io.hhplus.concert.concert.port.jpa.ConcertScheduleJpaRepository;
 import lombok.AllArgsConstructor;

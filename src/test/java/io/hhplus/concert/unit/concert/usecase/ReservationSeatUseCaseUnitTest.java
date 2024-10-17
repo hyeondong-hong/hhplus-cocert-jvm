@@ -8,7 +8,6 @@ import io.hhplus.concert.concert.port.ConcertSchedulePort;
 import io.hhplus.concert.concert.port.ConcertSeatPort;
 import io.hhplus.concert.concert.port.ReservationPort;
 import io.hhplus.concert.concert.usecase.ReservationSeatUseCase;
-import io.hhplus.concert.concert.usecase.SearchAvailableSeatsUseCase;
 import io.hhplus.concert.payment.domain.Payment;
 import io.hhplus.concert.payment.port.PaymentPort;
 import io.hhplus.concert.user.domain.Token;

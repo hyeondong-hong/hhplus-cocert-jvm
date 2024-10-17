@@ -3,7 +3,6 @@ package io.hhplus.concert.user.port;
 import io.hhplus.concert.user.domain.User;
 import io.hhplus.concert.user.port.jpa.UserJpaRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 @AllArgsConstructor
