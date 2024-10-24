@@ -94,8 +94,8 @@ class RestControllerAdvice extends ResponseEntityExceptionHandler {
 
         logRequestDetails(e, request);
 
-        ErrorResult errorResult = new ErrorResult(
-                String.valueOf(status.value()), message);
+        // Error code: E + status_code (400 Bad Request -> E400)
+        ErrorResult errorResult = new ErrorResult("E" + status.value(), message);
 
         return ResponseEntity.status(status).body(errorResult);
     }
