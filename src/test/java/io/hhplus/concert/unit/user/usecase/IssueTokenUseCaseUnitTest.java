@@ -1,13 +1,13 @@
 package io.hhplus.concert.unit.user.usecase;
 
-import io.hhplus.concert.user.domain.Token;
-import io.hhplus.concert.user.domain.User;
-import io.hhplus.concert.user.domain.UserPoint;
-import io.hhplus.concert.user.port.TokenPort;
-import io.hhplus.concert.user.port.UserPointPort;
-import io.hhplus.concert.user.port.UserPort;
-import io.hhplus.concert.user.usecase.IssueTokenUseCase;
-import io.hhplus.concert.user.usecase.dto.TokenResult;
+import io.hhplus.concert.app.user.domain.Token;
+import io.hhplus.concert.app.user.domain.User;
+import io.hhplus.concert.app.user.domain.UserPoint;
+import io.hhplus.concert.app.user.port.TokenPort;
+import io.hhplus.concert.app.user.port.UserPointPort;
+import io.hhplus.concert.app.user.port.UserPort;
+import io.hhplus.concert.app.user.usecase.IssueTokenUseCase;
+import io.hhplus.concert.app.user.usecase.dto.TokenResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

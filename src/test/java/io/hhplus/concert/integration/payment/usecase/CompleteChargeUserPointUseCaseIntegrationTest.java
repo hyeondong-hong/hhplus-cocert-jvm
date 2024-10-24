@@ -1,21 +1,23 @@
 package io.hhplus.concert.integration.payment.usecase;
 
-import io.hhplus.concert.payment.domain.Payment;
-import io.hhplus.concert.payment.domain.enm.PaymentStatus;
-import io.hhplus.concert.payment.port.PaymentPort;
-import io.hhplus.concert.payment.port.PaymentTransactionPort;
-import io.hhplus.concert.payment.usecase.CompleteChargeUserPointUseCase;
-import io.hhplus.concert.user.domain.PointTransaction;
-import io.hhplus.concert.user.domain.UserPoint;
-import io.hhplus.concert.user.domain.enm.PointTransactionStatus;
-import io.hhplus.concert.user.domain.enm.PointTransactionType;
-import io.hhplus.concert.user.port.PointTransactionPort;
-import io.hhplus.concert.user.port.UserPointPort;
+import io.hhplus.concert.app.payment.domain.Payment;
+import io.hhplus.concert.app.payment.domain.enm.PaymentStatus;
+import io.hhplus.concert.app.payment.port.PaymentPort;
+import io.hhplus.concert.app.payment.port.PaymentTransactionPort;
+import io.hhplus.concert.app.payment.usecase.CompleteChargeUserPointUseCase;
+import io.hhplus.concert.app.user.domain.PointTransaction;
+import io.hhplus.concert.app.user.domain.UserPoint;
+import io.hhplus.concert.app.user.domain.enm.PointTransactionStatus;
+import io.hhplus.concert.app.user.domain.enm.PointTransactionType;
+import io.hhplus.concert.app.user.port.PointTransactionPort;
+import io.hhplus.concert.app.user.port.UserPointPort;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -28,13 +30,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class CompleteChargeUserPointUseCaseIntegrationTest {
 
     @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private CompleteChargeUserPointUseCase completeChargeUserPointUseCase;
 
     @Autowired
     private PaymentPort paymentPort;
-
-    @Autowired
-    private PaymentTransactionPort paymentTransactionPort;
 
     @Autowired
     private UserPointPort userPointPort;
@@ -46,28 +48,48 @@ public class CompleteChargeUserPointUseCaseIntegrationTest {
 
     @BeforeEach
     public void setUp() {
-        UserPoint userPoint = new UserPoint();
-        userPoint.setUserId(1L);
-        userPoint.setRemains(0);
+        UserPoint userPoint = UserPoint.builder()
+                .userId(1L)
+                .remains(0)
+                .build();
         userPointPort.save(userPoint);
 
-        Payment payment = new Payment();
-        payment.setPrice(BigDecimal.valueOf(50000));
-        payment.setUserId(1L);
-        payment.setDueAt(LocalDateTime.now().plusMinutes(5));
-        payment.setStatus(PaymentStatus.PENDING);
-        paymentPort.save(payment);
+        Payment payment = paymentPort.save(
+                Payment.builder()
+                        .price(BigDecimal.valueOf(50000))
+                        .userId(1L)
+                        .dueAt(LocalDateTime.now().plusMinutes(5))
+                        .status(PaymentStatus.PENDING)
+                        .build()
+        );
         paymentKey = payment.getPaymentKey();
 
-        PointTransaction pointTransaction = new PointTransaction();
-        pointTransaction.setUserPointId(userPoint.getId());
-        pointTransaction.setAmount(50000);
-        pointTransaction.setType(PointTransactionType.CHARGE);
-        pointTransaction.setStatus(PointTransactionStatus.PENDING);
-        pointTransaction.setPaymentId(payment.getId());
-        pointTransaction.setCreatedAt(LocalDateTime.now());
-        pointTransaction.setModifiedAt(LocalDateTime.now());
-        pointTransactionPort.save(pointTransaction);
+        PointTransaction pointTransaction = pointTransactionPort.save(
+                PointTransaction.builder()
+                        .userPointId(userPoint.getId())
+                        .amount(50000)
+                        .type(PointTransactionType.CHARGE)
+                        .status(PointTransactionStatus.PENDING)
+                        .paymentId(payment.getId())
+                        .createdAt(LocalDateTime.now())
+                        .modifiedAt(LocalDateTime.now())
+                        .build()
+        );
+    }
+
+    @AfterEach
+    public void tearDown() {
+        jdbcTemplate.execute("truncate table hhplus_concert_test.concert;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.concert_schedule;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.concert_seat;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.payment;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.payment_transaction;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.point_transaction;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.reservation;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.user;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.user_point;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.token;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.service_entry;");
     }
 
     @Test

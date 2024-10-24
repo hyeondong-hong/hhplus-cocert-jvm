@@ -1,10 +1,10 @@
 package io.hhplus.concert.unit.user.usecase;
 
-import io.hhplus.concert.user.domain.ServiceEntry;
-import io.hhplus.concert.user.domain.Token;
-import io.hhplus.concert.user.port.ServiceEntryPort;
-import io.hhplus.concert.user.port.TokenPort;
-import io.hhplus.concert.user.usecase.CheckTokenEnrolledUseCase;
+import io.hhplus.concert.app.user.domain.ServiceEntry;
+import io.hhplus.concert.app.user.domain.Token;
+import io.hhplus.concert.app.user.port.ServiceEntryPort;
+import io.hhplus.concert.app.user.port.TokenPort;
+import io.hhplus.concert.app.user.usecase.CheckTokenEnrolledUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,11 +37,11 @@ public class CheckTokenEnrolledUseCaseUnitTest {
 
     @BeforeEach
     public void setUp() {
-        token = new Token();
-        token.setId(1L);
-        token.setUserId(11L);
-        token.setCreatedAt(LocalDateTime.now());
-        token.setExpiresAt(LocalDateTime.now().plusDays(1));
+        token = Token.builder()
+                .id(1L)
+                .userId(11L)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusDays(1)).build();
     }
 
     @Test
@@ -63,11 +63,15 @@ public class CheckTokenEnrolledUseCaseUnitTest {
     @DisplayName("토큰이 존재하면서 등록된 상태가 아니면 대기열에 등록한다")
     public void notEntriesToken() {
         when(tokenPort.getByKey(eq(token.getKeyUuid()))).then(r -> token);
-        when(serviceEntryPort.exists(eq(token.getId()))).thenReturn(false);
+        when(serviceEntryPort.existsByTokenId(eq(token.getId()))).thenReturn(false);
         when(serviceEntryPort.save(any(ServiceEntry.class))).then(r -> {
-            ServiceEntry serviceEntry = r.getArgument(0);
-            serviceEntry.setId(111L);
-            return serviceEntry;
+            ServiceEntry origin = r.getArgument(0);
+            return ServiceEntry.builder()
+                    .id(111L)
+                    .tokenId(origin.getTokenId())
+                    .entryAt(origin.getEntryAt())
+                    .enrolledAt(origin.getEnrolledAt())
+                    .build();
         });
         when(serviceEntryPort.getEntryRankByTokenId(eq(token.getId()))).thenReturn(100L);
 
@@ -83,15 +87,15 @@ public class CheckTokenEnrolledUseCaseUnitTest {
     @DisplayName("토큰이 존재하면서 등록된 상태이고 미진입 상태면 현재 상태와 순서를 반환한다")
     public void entriesTokenAndWait() {
         when(tokenPort.getByKey(eq(token.getKeyUuid()))).then(r -> token);
-        when(serviceEntryPort.exists(eq(token.getId()))).thenReturn(true);
-        when(serviceEntryPort.getByTokenId(eq(token.getId()))).then(r -> {
-            ServiceEntry serviceEntry = new ServiceEntry();
-            serviceEntry.setId(112L);
-            serviceEntry.setTokenId(token.getId());
-            serviceEntry.setEntryAt(LocalDateTime.now().minusMinutes(2));
-            serviceEntry.setEnrolledAt(null);
-            return serviceEntry;
-        });
+        when(serviceEntryPort.existsByTokenId(eq(token.getId()))).thenReturn(true);
+        when(serviceEntryPort.getByTokenId(eq(token.getId()))).then(r ->
+                ServiceEntry.builder()
+                        .id(112L)
+                        .tokenId(token.getId())
+                        .entryAt(LocalDateTime.now().minusMinutes(2))
+                        .enrolledAt(null)
+                        .build()
+        );
         when(serviceEntryPort.getEntryRankByTokenId(eq(token.getId()))).thenReturn(20L);
 
         CheckTokenEnrolledUseCase.Output output = checkTokenEnrolledUseCase.execute(
@@ -106,15 +110,15 @@ public class CheckTokenEnrolledUseCaseUnitTest {
     @DisplayName("토큰이 존재하면서 등록된 상태이고 진입 상태면 현재 상태만 반환한다")
     public void entriesTokenAndEnrolled() {
         when(tokenPort.getByKey(eq(token.getKeyUuid()))).then(r -> token);
-        when(serviceEntryPort.exists(eq(token.getId()))).thenReturn(true);
-        when(serviceEntryPort.getByTokenId(eq(token.getId()))).then(r -> {
-            ServiceEntry serviceEntry = new ServiceEntry();
-            serviceEntry.setId(113L);
-            serviceEntry.setTokenId(token.getId());
-            serviceEntry.setEntryAt(LocalDateTime.now().minusMinutes(2));
-            serviceEntry.setEnrolledAt(LocalDateTime.now().minusMinutes(1));
-            return serviceEntry;
-        });
+        when(serviceEntryPort.existsByTokenId(eq(token.getId()))).thenReturn(true);
+        when(serviceEntryPort.getByTokenId(eq(token.getId()))).then(r ->
+                ServiceEntry.builder()
+                        .id(113L)
+                        .tokenId(token.getId())
+                        .entryAt(LocalDateTime.now().minusMinutes(2))
+                        .enrolledAt(LocalDateTime.now().minusMinutes(1))
+                        .build()
+        );
 
         CheckTokenEnrolledUseCase.Output output = checkTokenEnrolledUseCase.execute(
                 new CheckTokenEnrolledUseCase.Input(token.getKeyUuid())

@@ -1,11 +1,11 @@
 package io.hhplus.concert.unit.concert.usecase;
 
-import io.hhplus.concert.concert.domain.ConcertSeat;
-import io.hhplus.concert.concert.port.ConcertPort;
-import io.hhplus.concert.concert.port.ConcertSchedulePort;
-import io.hhplus.concert.concert.port.ConcertSeatPort;
-import io.hhplus.concert.concert.port.ReservationPort;
-import io.hhplus.concert.concert.usecase.SearchAvailableSeatsUseCase;
+import io.hhplus.concert.app.concert.domain.ConcertSeat;
+import io.hhplus.concert.app.concert.port.ConcertPort;
+import io.hhplus.concert.app.concert.port.ConcertSchedulePort;
+import io.hhplus.concert.app.concert.port.ConcertSeatPort;
+import io.hhplus.concert.app.concert.port.ReservationPort;
+import io.hhplus.concert.app.concert.usecase.SearchAvailableSeatsUseCase;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,7 +54,7 @@ public class SearchAvailableSeatsUseCaseUnitTest {
     @Test
     @DisplayName("콘서트가 없으면 예외가 발생한다")
     public void noConcerts() {
-        when(concertPort.existsById(any(Long.class))).thenReturn(false);
+        doThrow(new NoSuchElementException("Concert not found: " + 1L)).when(concertPort).existsOrThrow(any(Long.class));
 
         NoSuchElementException e = assertThrows(
                 NoSuchElementException.class, () -> searchAvailableSeatsUseCase.execute(
@@ -69,8 +70,7 @@ public class SearchAvailableSeatsUseCaseUnitTest {
     @Test
     @DisplayName("스케줄이 없으면 예외가 발생한다")
     public void noSchedules() {
-        when(concertPort.existsById(any(Long.class))).thenReturn(true);
-        when(concertSchedulePort.existsById(any(Long.class))).thenReturn(false);
+        doThrow(new NoSuchElementException("Concert Schedule not found: " + 2L)).when(concertSchedulePort).existsOrThrow(any(Long.class));
 
         NoSuchElementException e = assertThrows(
                 NoSuchElementException.class, () -> searchAvailableSeatsUseCase.execute(
@@ -86,20 +86,19 @@ public class SearchAvailableSeatsUseCaseUnitTest {
     @Test
     @DisplayName("유효한 콘서트 좌석을 조회한다")
     public void searchSchedules() {
-        when(concertPort.existsById(any(Long.class))).thenReturn(true);
-        when(concertSchedulePort.existsById(any(Long.class))).thenReturn(true);
 
         when(concertSeatPort.getAllByConcertScheduleIdWithLock(eq(2L))).then(r -> {
             List<ConcertSeat> items = new ArrayList<>();
             for (int i = 0; i < 50; i++) {
-                ConcertSeat item = new ConcertSeat();
-                item.setId(i + 51L);
-                item.setConcertScheduleId(r.getArgument(0));
-                item.setLabel("일반석");
-                item.setPrice(BigDecimal.valueOf(12000));
-                item.setSeatNumber(i);
+                ConcertSeat item = ConcertSeat.builder()
+                        .id(i + 51L)
+                        .concertScheduleId(r.getArgument(0))
+                        .label("일반석")
+                        .price(BigDecimal.valueOf(12000))
+                        .seatNumber(i)
+                        .build();
                 if (i < 20) {
-                    item.setIsActive(false);
+                    item.close();
                 }
                 items.add(item);
             }

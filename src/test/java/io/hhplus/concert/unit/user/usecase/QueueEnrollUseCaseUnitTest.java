@@ -1,9 +1,8 @@
 package io.hhplus.concert.unit.user.usecase;
 
-import io.hhplus.concert.user.port.ServiceEntryPort;
-import io.hhplus.concert.user.usecase.QueueEnrollUseCase;
+import io.hhplus.concert.app.user.port.ServiceEntryPort;
+import io.hhplus.concert.app.user.usecase.QueueEnrollUseCase;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

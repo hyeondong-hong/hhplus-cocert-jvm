@@ -1,10 +1,9 @@
 package io.hhplus.concert.unit.user.usecase;
 
-import io.hhplus.concert.user.domain.UserPoint;
-import io.hhplus.concert.user.port.UserPointPort;
-import io.hhplus.concert.user.port.UserPort;
-import io.hhplus.concert.user.usecase.RetrieveUserPointUseCase;
-import org.junit.jupiter.api.AfterEach;
+import io.hhplus.concert.app.user.domain.UserPoint;
+import io.hhplus.concert.app.user.port.UserPointPort;
+import io.hhplus.concert.app.user.port.UserPort;
+import io.hhplus.concert.app.user.usecase.RetrieveUserPointUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,10 +35,11 @@ public class RetrieveUserPointUseCaseUnitTest {
 
     @BeforeEach
     public void setUp() {
-        userPoint = new UserPoint();
-        userPoint.setId(1L);
-        userPoint.setUserId(1L);
-        userPoint.setRemains(5000);
+        userPoint = UserPoint.builder()
+                .id(1L)
+                .userId(1L)
+                .remains(5000)
+                .build();
     }
 
     @Test

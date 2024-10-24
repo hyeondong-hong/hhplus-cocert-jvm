@@ -1,13 +1,13 @@
 package io.hhplus.concert.unit.user.usecase;
 
-import io.hhplus.concert.payment.domain.Payment;
-import io.hhplus.concert.payment.domain.enm.PaymentStatus;
-import io.hhplus.concert.payment.port.PaymentPort;
-import io.hhplus.concert.user.domain.PointTransaction;
-import io.hhplus.concert.user.domain.enm.PointTransactionStatus;
-import io.hhplus.concert.user.domain.enm.PointTransactionType;
-import io.hhplus.concert.user.port.PointTransactionPort;
-import io.hhplus.concert.user.usecase.ReleasePointTransactionsUseCase;
+import io.hhplus.concert.app.payment.domain.Payment;
+import io.hhplus.concert.app.payment.domain.enm.PaymentStatus;
+import io.hhplus.concert.app.payment.port.PaymentPort;
+import io.hhplus.concert.app.user.domain.PointTransaction;
+import io.hhplus.concert.app.user.domain.enm.PointTransactionStatus;
+import io.hhplus.concert.app.user.domain.enm.PointTransactionType;
+import io.hhplus.concert.app.user.port.PointTransactionPort;
+import io.hhplus.concert.app.user.usecase.ReleasePointTransactionsUseCase;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,28 +47,32 @@ public class ReleasePointTransactionsUseCaseUnitTest {
     @BeforeEach
     public void setUp() {
         for (int i = 0; i < 10; i++) {
-            PointTransaction pt = new PointTransaction();
-            pt.setId(i+1L);
-            pt.setType(PointTransactionType.CHARGE);
-            pt.setStatus(PointTransactionStatus.PENDING);
-            pt.setRemains(0);
-            pt.setPaymentId(i+11L);
-            pt.setAmount(3000);
-            pt.setCreatedAt(LocalDateTime.now());
-            pt.setModifiedAt(LocalDateTime.now());
-            selectedPointTransactions.add(pt);
+            selectedPointTransactions.add(
+                    PointTransaction.builder()
+                            .id(i+1L)
+                            .type(PointTransactionType.CHARGE)
+                            .status(PointTransactionStatus.PENDING)
+                            .remains(0)
+                            .paymentId(i+11L)
+                            .amount(3000)
+                            .createdAt(LocalDateTime.now())
+                            .modifiedAt(LocalDateTime.now())
+                            .build()
+            );
         }
 
         // 앞선 5건만 만료된 결제건으로 간주
         for (int i = 0; i < selectedPointTransactions.size() - 5; i++) {
-            Payment p = new Payment();
-            p.setId(selectedPointTransactions.get(i).getPaymentId());
-            p.setPrice(BigDecimal.valueOf(3000));
-            p.setDueAt(LocalDateTime.now().minusDays(1));
-            p.setUserId(1L);
-            p.setStatus(PaymentStatus.PENDING);
-            p.setPaidAt(null);
-            selectedPayments.add(p);
+            selectedPayments.add(
+                    Payment.builder()
+                            .id(selectedPointTransactions.get(i).getPaymentId())
+                            .price(BigDecimal.valueOf(3000))
+                            .dueAt(LocalDateTime.now().minusDays(1))
+                            .userId(1L)
+                            .status(PaymentStatus.PENDING)
+                            .paidAt(null)
+                            .build()
+            );
         }
     }
 

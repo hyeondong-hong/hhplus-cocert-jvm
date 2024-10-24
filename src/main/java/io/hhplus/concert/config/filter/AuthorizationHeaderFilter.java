@@ -1,7 +1,7 @@
 package io.hhplus.concert.config.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.hhplus.concert.user.usecase.CheckTokenEnrolledUseCase;
+import io.hhplus.concert.app.user.usecase.CheckTokenEnrolledUseCase;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,12 +17,12 @@ import java.util.Map;
 
 public class AuthorizationHeaderFilter extends BasicAuthenticationFilter {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final CheckTokenEnrolledUseCase checkTokenEnrolledUseCase;
 
     public AuthorizationHeaderFilter(
             AuthenticationManager authenticationManager,
             CheckTokenEnrolledUseCase checkTokenEnrolledUseCase) {
+
         super(authenticationManager);
         this.checkTokenEnrolledUseCase = checkTokenEnrolledUseCase;
     }
@@ -33,21 +33,16 @@ public class AuthorizationHeaderFilter extends BasicAuthenticationFilter {
                                     FilterChain chain)
             throws IOException, ServletException {
 
-        String authorizationHeader = request.getHeader("Authorization");
+        if (isSwagger(request, response, chain)) {
+            return;
+        }
 
-        String[] swaggerPaths = {
-                "^/v3/api-docs.*$", "^/swagger-ui.*$", "^/swagger-resources/.*$", "^/webjars/.*$"
-        };
         if (request.getRequestURI().matches("/api/1.0/users/\\d+/tokens")) {
             chain.doFilter(request, response);
             return;
         }
-        for (String swaggerPath : swaggerPaths) {
-            if (request.getRequestURI().matches(swaggerPath)) {
-                chain.doFilter(request, response);
-                return;
-            }
-        }
+
+        String authorizationHeader = request.getHeader("Authorization");
 
         if (authorizationHeader == null) {
             sendJsonErrorResponse(
@@ -74,7 +69,7 @@ public class AuthorizationHeaderFilter extends BasicAuthenticationFilter {
             return;
         }
 
-        logger.info("Filter passed, proceeding to controller.");
+        logger.debug("Filter passed, proceeding to controller.");
 
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(authorizationHeader, null, null);
@@ -90,7 +85,7 @@ public class AuthorizationHeaderFilter extends BasicAuthenticationFilter {
             String message
     ) throws IOException {
 
-        logger.info("Setting response status to: " + status);
+        logger.debug("Setting response status to: " + status);
 
         response.setStatus(status);
         response.setContentType("application/json");
@@ -105,5 +100,21 @@ public class AuthorizationHeaderFilter extends BasicAuthenticationFilter {
         response.getWriter().write(jsonResponse);
         response.getWriter().flush();
         response.getWriter().close();
+    }
+
+    private boolean isSwagger(HttpServletRequest request,
+                              HttpServletResponse response,
+                              FilterChain chain
+    ) throws IOException, ServletException {
+        String[] swaggerPaths = {
+                "^/v3/api-docs.*$", "^/swagger-ui.*$", "^/swagger-resources/.*$", "^/webjars/.*$"
+        };
+        for (String swaggerPath : swaggerPaths) {
+            if (request.getRequestURI().matches(swaggerPath)) {
+                chain.doFilter(request, response);
+                return true;
+            }
+        }
+        return false;
     }
 }

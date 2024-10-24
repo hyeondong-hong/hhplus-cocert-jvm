@@ -1,17 +1,17 @@
 package io.hhplus.concert.unit.concert.usecase;
 
-import io.hhplus.concert.concert.domain.ConcertSeat;
-import io.hhplus.concert.concert.domain.Reservation;
-import io.hhplus.concert.concert.domain.enm.ReservationStatus;
-import io.hhplus.concert.concert.port.ConcertPort;
-import io.hhplus.concert.concert.port.ConcertSchedulePort;
-import io.hhplus.concert.concert.port.ConcertSeatPort;
-import io.hhplus.concert.concert.port.ReservationPort;
-import io.hhplus.concert.concert.usecase.ReservationSeatUseCase;
-import io.hhplus.concert.payment.domain.Payment;
-import io.hhplus.concert.payment.port.PaymentPort;
-import io.hhplus.concert.user.domain.Token;
-import io.hhplus.concert.user.port.TokenPort;
+import io.hhplus.concert.app.concert.domain.ConcertSeat;
+import io.hhplus.concert.app.concert.domain.Reservation;
+import io.hhplus.concert.app.concert.domain.enm.ReservationStatus;
+import io.hhplus.concert.app.concert.port.ConcertPort;
+import io.hhplus.concert.app.concert.port.ConcertSchedulePort;
+import io.hhplus.concert.app.concert.port.ConcertSeatPort;
+import io.hhplus.concert.app.concert.port.ReservationPort;
+import io.hhplus.concert.app.concert.usecase.ReservationSeatUseCase;
+import io.hhplus.concert.app.payment.domain.Payment;
+import io.hhplus.concert.app.payment.port.PaymentPort;
+import io.hhplus.concert.app.user.domain.Token;
+import io.hhplus.concert.app.user.port.TokenPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,8 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ReservationSeatUseCaseUnitTest {
@@ -66,19 +65,21 @@ public class ReservationSeatUseCaseUnitTest {
     @BeforeEach
     public void setUp() {
         keyUuid = UUID.randomUUID().toString();
-        token = new Token();
-        token.setId(3840L);
-        token.setKeyUuid(keyUuid);
-        token.setUserId(64L);
-        token.setCreatedAt(LocalDateTime.now());
+        token = Token.builder()
+                .id(3840L)
+                .keyUuid(keyUuid)
+                .userId(64L)
+                .createdAt(LocalDateTime.now())
+                .build();
 
-        concertSeat = new ConcertSeat();
-        concertSeat.setId(3L);
-        concertSeat.setConcertScheduleId(2L);
-        concertSeat.setLabel("일반석");
-        concertSeat.setPrice(BigDecimal.valueOf(12000));
-        concertSeat.setSeatNumber(53);
-        concertSeat.setIsActive(true);
+        concertSeat = ConcertSeat.builder()
+                .id(3L)
+                .concertScheduleId(2L)
+                .label("일반석")
+                .price(BigDecimal.valueOf(12000))
+                .seatNumber(53)
+                .isActive(true)
+                .build();
 
         lenient().when(tokenPort.getByKey(eq(keyUuid))).thenReturn(token);
         lenient().when(concertPort.existsById(any(Long.class))).thenReturn(true);
@@ -87,15 +88,27 @@ public class ReservationSeatUseCaseUnitTest {
         lenient().when(concertSeatPort.save(any(ConcertSeat.class))).thenReturn(concertSeat);
 
         lenient().when(paymentPort.save(any(Payment.class))).then(r -> {
-            Payment result = r.getArgument(0);
-            result.setId(2560L);
-            return result;
+            Payment origin = r.getArgument(0);
+            return Payment.builder()
+                    .id(2560L)
+                    .userId(origin.getUserId())
+                    .paymentKey(origin.getPaymentKey())
+                    .price(origin.getPrice())
+                    .status(origin.getStatus())
+                    .dueAt(origin.getDueAt())
+                    .paidAt(origin.getPaidAt())
+                    .build();
         });
 
         lenient().when(reservationPort.save(any(Reservation.class))).then(r -> {
-            Reservation result = r.getArgument(0);
-            result.setId(1280L);
-            return result;
+            Reservation origin = r.getArgument(0);
+            return Reservation.builder()
+                    .id(1280L)
+                    .userId(origin.getUserId())
+                    .concertSeatId(origin.getConcertSeatId())
+                    .status(origin.getStatus())
+                    .paymentId(origin.getPaymentId())
+                    .build();
         });
     }
 
@@ -124,7 +137,7 @@ public class ReservationSeatUseCaseUnitTest {
     @Test
     @DisplayName("콘서트가 없으면 예외가 발생한다")
     public void noConcert() {
-        when(concertPort.existsById(any(Long.class))).thenReturn(false);
+        doThrow(new NoSuchElementException("Concert not found: " + 1L)).when(concertPort).existsOrThrow(any(Long.class));
 
         NoSuchElementException e = assertThrows(
                 NoSuchElementException.class, () -> reservationSeatUseCase.execute(
@@ -142,7 +155,7 @@ public class ReservationSeatUseCaseUnitTest {
     @Test
     @DisplayName("스케줄이 없으면 예외가 발생한다")
     public void noSchedule() {
-        when(concertSchedulePort.existsById(any(Long.class))).thenReturn(false);
+        doThrow(new NoSuchElementException("Concert Schedule not found: " + 2L)).when(concertSchedulePort).existsOrThrow(any(Long.class));
 
         NoSuchElementException e = assertThrows(
                 NoSuchElementException.class, () -> reservationSeatUseCase.execute(
@@ -178,7 +191,7 @@ public class ReservationSeatUseCaseUnitTest {
     @Test
     @DisplayName("좌석이 비활성화 상태면 예외가 발생한다")
     public void noActivatedSeat() {
-        concertSeat.setIsActive(false);
+        concertSeat.close();
 
         IllegalStateException e = assertThrows(
                 IllegalStateException.class, () -> reservationSeatUseCase.execute(
