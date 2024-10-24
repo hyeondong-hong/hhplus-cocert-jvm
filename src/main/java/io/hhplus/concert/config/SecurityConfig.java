@@ -2,7 +2,7 @@ package io.hhplus.concert.config;
 
 import io.hhplus.concert.config.component.ConcertAuthenticationEntryPoint;
 import io.hhplus.concert.config.filter.AuthorizationHeaderFilter;
-import io.hhplus.concert.user.usecase.CheckTokenEnrolledUseCase;
+import io.hhplus.concert.app.user.usecase.CheckTokenEnrolledUseCase;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,8 +28,8 @@ import java.util.UUID;
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
-
     private final ConcertAuthenticationEntryPoint authenticationEntryPoint;
+
     private final CheckTokenEnrolledUseCase checkTokenEnrolledUseCase;
 
     @Bean

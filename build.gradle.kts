@@ -1,10 +1,10 @@
-import org.asciidoctor.gradle.jvm.AsciidoctorTask
+//import org.asciidoctor.gradle.jvm.AsciidoctorTask
 
 plugins {
     java
     id("org.springframework.boot") version "3.3.4"
     id("io.spring.dependency-management") version "1.1.6"
-    id("org.asciidoctor.jvm.convert") version "3.3.2"
+//    id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
 
 group = "io.hhplus"
@@ -34,7 +34,8 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+//    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+    testImplementation("io.rest-assured:rest-assured:5.5.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
