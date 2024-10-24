@@ -1,17 +1,19 @@
 package io.hhplus.concert.integration.concert.usecase;
 
-import io.hhplus.concert.concert.domain.Reservation;
-import io.hhplus.concert.concert.domain.enm.ReservationStatus;
-import io.hhplus.concert.concert.port.ReservationPort;
-import io.hhplus.concert.concert.usecase.ReleaseReservationsUseCase;
-import io.hhplus.concert.payment.domain.Payment;
-import io.hhplus.concert.payment.domain.enm.PaymentStatus;
-import io.hhplus.concert.payment.port.PaymentPort;
+import io.hhplus.concert.app.concert.domain.Reservation;
+import io.hhplus.concert.app.concert.domain.enm.ReservationStatus;
+import io.hhplus.concert.app.concert.port.ReservationPort;
+import io.hhplus.concert.app.concert.usecase.ReleaseReservationsUseCase;
+import io.hhplus.concert.app.payment.domain.Payment;
+import io.hhplus.concert.app.payment.domain.enm.PaymentStatus;
+import io.hhplus.concert.app.payment.port.PaymentPort;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -26,6 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ReleaseReservationsUseCaseIntegrationTest {
 
     @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private ReleaseReservationsUseCase releaseReservationsUseCase;
 
     @Autowired
@@ -38,26 +43,45 @@ public class ReleaseReservationsUseCaseIntegrationTest {
     public void setUp() {
         List<Reservation> reservations = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            Reservation r = new Reservation();
-            r.setPaymentId(i + 1L);
-            r.setConcertSeatId(i + 1L);
-            r.setStatus(ReservationStatus.PENDING);
-            r.setUserId(i + 10L);
-            reservations.add(r);
+            reservations.add(
+                    Reservation.builder()
+                            .paymentId(i + 1L)
+                            .concertSeatId(i + 1L)
+                            .status(ReservationStatus.PENDING)
+                            .userId(i + 10L)
+                            .build()
+            );
         }
         reservationPort.saveAll(reservations);
 
         List<Payment> payments = new ArrayList<>();
         for (int i = 0; i < reservations.size() - 5; i++) {
-            Payment p = new Payment();
-            p.setPrice(BigDecimal.valueOf(12000));
-            p.setDueAt(LocalDateTime.now().minusDays(1));
-            p.setUserId(1L);
-            p.setStatus(PaymentStatus.PENDING);
-            p.setPaidAt(null);
-            payments.add(p);
+            payments.add(
+                    Payment.builder()
+                            .price(BigDecimal.valueOf(12000))
+                            .dueAt(LocalDateTime.now().minusDays(1))
+                            .userId(1L)
+                            .status(PaymentStatus.PENDING)
+                            .paidAt(null)
+                            .build()
+            );
         }
         paymentPort.saveAll(payments);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        jdbcTemplate.execute("truncate table hhplus_concert_test.concert;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.concert_schedule;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.concert_seat;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.payment;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.payment_transaction;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.point_transaction;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.reservation;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.user;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.user_point;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.token;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.service_entry;");
     }
 
     @Test

@@ -1,8 +1,8 @@
 package io.hhplus.concert.unit.concert.usecase;
 
-import io.hhplus.concert.concert.domain.Concert;
-import io.hhplus.concert.concert.port.ConcertPort;
-import io.hhplus.concert.concert.usecase.SearchConcertsUseCase;
+import io.hhplus.concert.app.concert.domain.Concert;
+import io.hhplus.concert.app.concert.port.ConcertPort;
+import io.hhplus.concert.app.concert.usecase.SearchConcertsUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,11 +35,13 @@ public class SearchConcertsUseCaseUnitTest {
         when(concertPort.findAllByPageable(pageable)).then(r -> {
             List<Concert> items = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
-                Concert item = new Concert();
-                item.setId(i + 1L);
-                item.setTitle("항해99 특강" + i);
-                item.setCast("항해 코치진");
-                items.add(item);
+                items.add(
+                        Concert.builder()
+                                .id(i + 1L)
+                                .title("항해99 특강" + i)
+                                .cast("항해 코치진")
+                                .build()
+                );
             }
             return new PageImpl<>(items, pageable, 7);
         });

@@ -1,18 +1,20 @@
 package io.hhplus.concert.integration.user.usecase;
 
-import io.hhplus.concert.payment.domain.Payment;
-import io.hhplus.concert.payment.domain.enm.PaymentStatus;
-import io.hhplus.concert.payment.port.PaymentPort;
-import io.hhplus.concert.user.domain.PointTransaction;
-import io.hhplus.concert.user.domain.enm.PointTransactionStatus;
-import io.hhplus.concert.user.domain.enm.PointTransactionType;
-import io.hhplus.concert.user.port.PointTransactionPort;
-import io.hhplus.concert.user.usecase.ReleasePointTransactionsUseCase;
+import io.hhplus.concert.app.payment.domain.Payment;
+import io.hhplus.concert.app.payment.domain.enm.PaymentStatus;
+import io.hhplus.concert.app.payment.port.PaymentPort;
+import io.hhplus.concert.app.user.domain.PointTransaction;
+import io.hhplus.concert.app.user.domain.enm.PointTransactionStatus;
+import io.hhplus.concert.app.user.domain.enm.PointTransactionType;
+import io.hhplus.concert.app.user.port.PointTransactionPort;
+import io.hhplus.concert.app.user.usecase.ReleasePointTransactionsUseCase;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -27,6 +29,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ReleasePointTransactionsUseCaseIntegrationTest {
 
     @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private ReleasePointTransactionsUseCase releasePointTransactionsUseCase;
 
     @Autowired
@@ -39,30 +44,49 @@ public class ReleasePointTransactionsUseCaseIntegrationTest {
     public void setUp() {
         List<PointTransaction> pointTransactions = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            PointTransaction pt = new PointTransaction();
-            pt.setUserPointId(10 + 1L);
-            pt.setType(PointTransactionType.CHARGE);
-            pt.setStatus(PointTransactionStatus.PENDING);
-            pt.setRemains(0);
-            pt.setPaymentId(i + 1L);
-            pt.setAmount(3000);
-            pt.setCreatedAt(LocalDateTime.now());
-            pt.setModifiedAt(LocalDateTime.now());
-            pointTransactions.add(pt);
+            pointTransactions.add(
+                    PointTransaction.builder()
+                            .userPointId(10 + 1L)
+                            .type(PointTransactionType.CHARGE)
+                            .status(PointTransactionStatus.PENDING)
+                            .remains(0)
+                            .paymentId(i + 1L)
+                            .amount(3000)
+                            .createdAt(LocalDateTime.now())
+                            .modifiedAt(LocalDateTime.now())
+                            .build()
+            );
         }
         pointTransactionPort.saveAll(pointTransactions);
 
         List<Payment> payments = new ArrayList<>();
         for (int i = 0; i < pointTransactions.size() - 5; i++) {
-            Payment p = new Payment();
-            p.setPrice(BigDecimal.valueOf(3000));
-            p.setDueAt(LocalDateTime.now().minusDays(1));
-            p.setUserId(1L);
-            p.setStatus(PaymentStatus.PENDING);
-            p.setPaidAt(null);
-            payments.add(p);
+            payments.add(
+                    Payment.builder()
+                            .price(BigDecimal.valueOf(3000))
+                            .dueAt(LocalDateTime.now().minusDays(1))
+                            .userId(1L)
+                            .status(PaymentStatus.PENDING)
+                            .paidAt(null)
+                            .build()
+            );
         }
         paymentPort.saveAll(payments);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        jdbcTemplate.execute("truncate table hhplus_concert_test.concert;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.concert_schedule;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.concert_seat;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.payment;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.payment_transaction;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.point_transaction;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.reservation;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.user;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.user_point;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.token;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.service_entry;");
     }
 
     @Test

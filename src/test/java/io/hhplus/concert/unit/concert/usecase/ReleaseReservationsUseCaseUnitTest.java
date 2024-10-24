@@ -1,12 +1,13 @@
 package io.hhplus.concert.unit.concert.usecase;
 
-import io.hhplus.concert.concert.domain.Reservation;
-import io.hhplus.concert.concert.domain.enm.ReservationStatus;
-import io.hhplus.concert.concert.port.ReservationPort;
-import io.hhplus.concert.concert.usecase.ReleaseReservationsUseCase;
-import io.hhplus.concert.payment.domain.Payment;
-import io.hhplus.concert.payment.domain.enm.PaymentStatus;
-import io.hhplus.concert.payment.port.PaymentPort;
+import io.hhplus.concert.app.concert.domain.Reservation;
+import io.hhplus.concert.app.concert.domain.enm.ReservationStatus;
+import io.hhplus.concert.app.concert.port.ConcertSeatPort;
+import io.hhplus.concert.app.concert.port.ReservationPort;
+import io.hhplus.concert.app.concert.usecase.ReleaseReservationsUseCase;
+import io.hhplus.concert.app.payment.domain.Payment;
+import io.hhplus.concert.app.payment.domain.enm.PaymentStatus;
+import io.hhplus.concert.app.payment.port.PaymentPort;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,9 @@ public class ReleaseReservationsUseCaseUnitTest {
 
     @Mock
     private PaymentPort paymentPort;
+
+    @Mock
+    private ConcertSeatPort concertSeatPort;
 
     @InjectMocks
     private ReleaseReservationsUseCase releaseReservationsUseCase;
@@ -72,27 +76,31 @@ public class ReleaseReservationsUseCaseUnitTest {
         when(reservationPort.getAllByStatusesWithLock(any(List.class))).then(r -> {
             selectedReservations = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
-                Reservation reservation = new Reservation();
-                reservation.setId(i + 1L);
-                reservation.setUserId(64L + (i * 10));
-                reservation.setConcertSeatId(70L + i);
-                reservation.setPaymentId(1024L + i);
-                reservation.setStatus(ReservationStatus.PENDING);
-                selectedReservations.add(reservation);
+                selectedReservations.add(
+                        Reservation.builder()
+                                .id(i + 1L)
+                                .userId(64L + (i * 10))
+                                .concertSeatId(70L + i)
+                                .paymentId(1024L + i)
+                                .status(ReservationStatus.PENDING)
+                                .build()
+                );
             }
             return selectedReservations;
         });
         when(paymentPort.getExpiredAllByIdsWithLock(any(List.class))).then(r -> {
             selectedPayments = new ArrayList<>();
             for (int i = 0; i < 3; i++) {
-                Payment payment = new Payment();
-                payment.setId(i + 1024L);
-                payment.setUserId(64L + (i * 10));
-                payment.setDueAt(LocalDateTime.now().minusMinutes(5));
-                payment.setStatus(PaymentStatus.PENDING);
-                payment.setPrice(BigDecimal.valueOf(12000));
-                payment.setPaymentKey(UUID.randomUUID().toString());
-                selectedPayments.add(payment);
+                selectedPayments.add(
+                        Payment.builder()
+                                .id(i + 1024L)
+                                .userId(64L + (i * 10))
+                                .dueAt(LocalDateTime.now().minusMinutes(5))
+                                .status(PaymentStatus.PENDING)
+                                .price(BigDecimal.valueOf(12000))
+                                .paymentKey(UUID.randomUUID().toString())
+                                .build()
+                );
             }
             return selectedPayments;
         });

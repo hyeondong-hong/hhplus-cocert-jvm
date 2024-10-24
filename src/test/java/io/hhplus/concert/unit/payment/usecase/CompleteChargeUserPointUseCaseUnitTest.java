@@ -1,20 +1,20 @@
 package io.hhplus.concert.unit.payment.usecase;
 
-import io.hhplus.concert.payment.domain.Payment;
-import io.hhplus.concert.payment.domain.PaymentTransaction;
-import io.hhplus.concert.payment.domain.enm.PaymentStatus;
-import io.hhplus.concert.payment.domain.enm.PgResultType;
-import io.hhplus.concert.payment.port.HangHaePgPort;
-import io.hhplus.concert.payment.port.PaymentPort;
-import io.hhplus.concert.payment.port.PaymentTransactionPort;
-import io.hhplus.concert.payment.usecase.CompleteChargeUserPointUseCase;
-import io.hhplus.concert.payment.usecase.dto.PointChangeResult;
-import io.hhplus.concert.user.domain.PointTransaction;
-import io.hhplus.concert.user.domain.UserPoint;
-import io.hhplus.concert.user.domain.enm.PointTransactionStatus;
-import io.hhplus.concert.user.domain.enm.PointTransactionType;
-import io.hhplus.concert.user.port.PointTransactionPort;
-import io.hhplus.concert.user.port.UserPointPort;
+import io.hhplus.concert.app.payment.domain.Payment;
+import io.hhplus.concert.app.payment.domain.PaymentTransaction;
+import io.hhplus.concert.app.payment.domain.enm.PaymentStatus;
+import io.hhplus.concert.app.payment.domain.enm.PgResultType;
+import io.hhplus.concert.app.payment.port.HangHaePgPort;
+import io.hhplus.concert.app.payment.port.PaymentPort;
+import io.hhplus.concert.app.payment.port.PaymentTransactionPort;
+import io.hhplus.concert.app.payment.usecase.CompleteChargeUserPointUseCase;
+import io.hhplus.concert.app.payment.usecase.dto.PointChangeResult;
+import io.hhplus.concert.app.user.domain.PointTransaction;
+import io.hhplus.concert.app.user.domain.UserPoint;
+import io.hhplus.concert.app.user.domain.enm.PointTransactionStatus;
+import io.hhplus.concert.app.user.domain.enm.PointTransactionType;
+import io.hhplus.concert.app.user.port.PointTransactionPort;
+import io.hhplus.concert.app.user.port.UserPointPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,6 +63,8 @@ public class CompleteChargeUserPointUseCaseUnitTest {
 
     private Payment payment;
 
+    private Payment expiredPayment;
+
     private UserPoint userPoint;
 
     private PointTransaction pointTransaction;
@@ -72,46 +74,56 @@ public class CompleteChargeUserPointUseCaseUnitTest {
         userId = 64L;
         paymentKey = UUID.randomUUID().toString();
 
-        payment = new Payment();
-        payment.setId(1280L);
-        payment.setUserId(userId);
-        payment.setPaymentKey(paymentKey);
-        payment.setStatus(PaymentStatus.PENDING);
-        payment.setDueAt(LocalDateTime.now().plusMinutes(5));
-        payment.setPrice(BigDecimal.valueOf(5000));
+        payment = Payment.builder()
+                .id(1280L)
+                .userId(userId)
+                .paymentKey(paymentKey)
+                .status(PaymentStatus.PENDING)
+                .dueAt(LocalDateTime.now().plusMinutes(5))
+                .price(BigDecimal.valueOf(5000))
+                .build();
 
-        userPoint = new UserPoint();
-        userPoint.setId(65L);
-        userPoint.setUserId(payment.getUserId());
-        userPoint.setRemains(5000);
+        userPoint = UserPoint.builder()
+                .id(65L)
+                .userId(payment.getUserId())
+                .remains(5000)
+                .build();
 
-        pointTransaction = new PointTransaction();
-        pointTransaction.setId(2560L);
-        pointTransaction.setUserPointId(userPoint.getId());
-        pointTransaction.setRemains(10000);
-        pointTransaction.setAmount(5000);
-        pointTransaction.setStatus(PointTransactionStatus.PENDING);
-        pointTransaction.setType(PointTransactionType.CHARGE);
-        pointTransaction.setPaymentId(payment.getId());
+        pointTransaction = PointTransaction.builder()
+                .id(2560L)
+                .userPointId(userPoint.getId())
+                .remains(10000)
+                .amount(5000)
+                .status(PointTransactionStatus.PENDING)
+                .type(PointTransactionType.CHARGE)
+                .paymentId(payment.getId())
+                .build();
 
-        when(paymentPort.getByPaymentKey(eq(paymentKey))).thenReturn(payment);
+        lenient().when(paymentPort.getByPaymentKeyWithLock(eq(paymentKey))).thenReturn(payment);
         lenient().when(hangHaePgPort.purchase(eq(userId), eq(paymentKey), any(BigDecimal.class))).thenReturn(PgResultType.OK);
         lenient().when(pointTransactionPort.getByPaymentId(eq(payment.getId()))).thenReturn(pointTransaction);
         lenient().when(pointTransactionPort.save(eq(pointTransaction))).thenReturn(pointTransaction);
-        lenient().when(userPointPort.getByUserId(eq(userId))).thenReturn(userPoint);
+        lenient().when(userPointPort.getByUserIdWithLock(eq(userId))).thenReturn(userPoint);
         lenient().when(userPointPort.save(eq(userPoint))).thenReturn(userPoint);
         lenient().when(paymentPort.save(eq(payment))).thenReturn(payment);
         lenient().when(paymentTransactionPort.save(any(PaymentTransaction.class))).then(r -> {
-            PaymentTransaction result = r.getArgument(0);
-            result.setId(2160L);
-            return result;
+            PaymentTransaction origin = r.getArgument(0);
+            return PaymentTransaction.builder()
+                    .id(2160L)
+                    .paymentId(origin.getPaymentId())
+                    .method(origin.getMethod())
+                    .status(origin.getStatus())
+                    .amount(origin.getAmount())
+                    .createdAt(origin.getCreatedAt())
+                    .modifiedAt(origin.getModifiedAt())
+                    .build();
         });
     }
 
     @Test
     @DisplayName("이미 완료된 결제에 대해서 예외가 발생한다")
     public void completedPayment() {
-        payment.setStatus(PaymentStatus.PAID);
+        payment.setPaid();
 
         IllegalArgumentException e = assertThrows(
                 IllegalArgumentException.class,
@@ -129,7 +141,7 @@ public class CompleteChargeUserPointUseCaseUnitTest {
     @Test
     @DisplayName("취소된 결제에 대해서 예외가 발생한다")
     public void cancelledPayment() {
-        payment.setStatus(PaymentStatus.CANCELLED);
+        payment.setCancelled();
 
         IllegalArgumentException e = assertThrows(
                 IllegalArgumentException.class,
@@ -147,7 +159,15 @@ public class CompleteChargeUserPointUseCaseUnitTest {
     @Test
     @DisplayName("결제 기한이 만료된 예약에 대해 예외가 발생한다")
     public void expiredPayment() {
-        payment.setDueAt(LocalDateTime.now().minusMinutes(5));
+        Payment expiredPayment = Payment.builder()
+                .id(payment.getId())
+                .userId(payment.getUserId())
+                .paymentKey(payment.getPaymentKey())
+                .status(payment.getStatus())
+                .dueAt(LocalDateTime.now().minusMinutes(5))  // expired
+                .price(payment.getPrice())
+                .build();
+        when(paymentPort.getByPaymentKeyWithLock(eq(paymentKey))).thenReturn(expiredPayment);
 
         IllegalArgumentException e = assertThrows(
                 IllegalArgumentException.class,

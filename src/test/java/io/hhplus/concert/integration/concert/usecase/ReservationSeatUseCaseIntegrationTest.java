@@ -1,25 +1,27 @@
 package io.hhplus.concert.integration.concert.usecase;
 
-import io.hhplus.concert.concert.domain.Concert;
-import io.hhplus.concert.concert.domain.ConcertSchedule;
-import io.hhplus.concert.concert.domain.ConcertSeat;
-import io.hhplus.concert.concert.domain.Reservation;
-import io.hhplus.concert.concert.domain.enm.ReservationStatus;
-import io.hhplus.concert.concert.port.ConcertPort;
-import io.hhplus.concert.concert.port.ConcertSchedulePort;
-import io.hhplus.concert.concert.port.ConcertSeatPort;
-import io.hhplus.concert.concert.port.ReservationPort;
-import io.hhplus.concert.concert.usecase.ReservationSeatUseCase;
-import io.hhplus.concert.payment.domain.Payment;
-import io.hhplus.concert.payment.domain.enm.PaymentStatus;
-import io.hhplus.concert.payment.port.PaymentPort;
-import io.hhplus.concert.user.domain.Token;
-import io.hhplus.concert.user.port.TokenPort;
+import io.hhplus.concert.app.concert.domain.Concert;
+import io.hhplus.concert.app.concert.domain.ConcertSchedule;
+import io.hhplus.concert.app.concert.domain.ConcertSeat;
+import io.hhplus.concert.app.concert.domain.Reservation;
+import io.hhplus.concert.app.concert.domain.enm.ReservationStatus;
+import io.hhplus.concert.app.concert.port.ConcertPort;
+import io.hhplus.concert.app.concert.port.ConcertSchedulePort;
+import io.hhplus.concert.app.concert.port.ConcertSeatPort;
+import io.hhplus.concert.app.concert.port.ReservationPort;
+import io.hhplus.concert.app.concert.usecase.ReservationSeatUseCase;
+import io.hhplus.concert.app.payment.domain.Payment;
+import io.hhplus.concert.app.payment.domain.enm.PaymentStatus;
+import io.hhplus.concert.app.payment.port.PaymentPort;
+import io.hhplus.concert.app.user.domain.Token;
+import io.hhplus.concert.app.user.port.TokenPort;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -30,6 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @ActiveProfiles("test")
 public class ReservationSeatUseCaseIntegrationTest {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     private ReservationSeatUseCase reservationSeatUseCase;
@@ -56,36 +61,61 @@ public class ReservationSeatUseCaseIntegrationTest {
 
     @BeforeEach
     public void setUp() {
-        Token token = new Token();
-        token.setUserId(1L);
-        token.setCreatedAt(LocalDateTime.now());
-        token.setExpiresAt(LocalDateTime.now().plusDays(1));
-        tokenPort.save(token);
+        Token token = tokenPort.save(
+                Token.builder()
+                        .userId(1L)
+                        .createdAt(LocalDateTime.now())
+                        .expiresAt(LocalDateTime.now().plusDays(1))
+                        .build()
+        );
         uuid = token.getKeyUuid();
 
-        Concert concert = new Concert();
-        concert.setTitle("항해99 강좌");
-        concert.setCast("항해 코치진");
-        concertPort.save(concert);
+        Concert concert = concertPort.save(
+                Concert.builder()
+                        .title("항해99 강좌")
+                        .cast("항해 코치진")
+                        .build()
+        );
 
-        ConcertSchedule schedule = new ConcertSchedule();
-        schedule.setConcertId(concert.getId());
-        schedule.setScheduledAt(LocalDateTime.now().plusDays(1));
-        concertSchedulePort.save(schedule);
+        ConcertSchedule schedule = concertSchedulePort.save(
+                ConcertSchedule.builder()
+                        .concertId(concert.getId())
+                        .scheduledAt(LocalDateTime.now().plusDays(1))
+                        .build()
+        );
 
-        ConcertSeat seat = new ConcertSeat();
-        seat.setConcertScheduleId(schedule.getId());
-        seat.setSeatNumber(1);
-        seat.setLabel("일반석");
-        seat.setPrice(BigDecimal.valueOf(12000));
-        concertSeatPort.save(seat);
+        ConcertSeat seat = concertSeatPort.save(
+                ConcertSeat.builder()
+                        .concertScheduleId(schedule.getId())
+                        .seatNumber(1)
+                        .label("일반석")
+                        .price(BigDecimal.valueOf(12000))
+                        .build()
+        );
 
-        Payment payment = new Payment();
-        payment.setPrice(BigDecimal.valueOf(12000));
-        payment.setUserId(1L);
-        payment.setDueAt(LocalDateTime.now().plusMinutes(5));
-        payment.setStatus(PaymentStatus.PENDING);
-        paymentPort.save(payment);
+        Payment payment = paymentPort.save(
+                Payment.builder()
+                        .price(BigDecimal.valueOf(12000))
+                        .userId(1L)
+                        .dueAt(LocalDateTime.now().plusMinutes(5))
+                        .status(PaymentStatus.PENDING)
+                        .build()
+        );
+    }
+
+    @AfterEach
+    public void tearDown() {
+        jdbcTemplate.execute("truncate table hhplus_concert_test.concert;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.concert_schedule;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.concert_seat;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.payment;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.payment_transaction;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.point_transaction;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.reservation;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.user;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.user_point;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.token;");
+        jdbcTemplate.execute("truncate table hhplus_concert_test.service_entry;");
     }
 
     @Test

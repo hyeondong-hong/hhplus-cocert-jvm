@@ -1,21 +1,21 @@
 package io.hhplus.concert.unit.payment.usecase;
 
-import io.hhplus.concert.concert.domain.Reservation;
-import io.hhplus.concert.concert.domain.enm.ReservationStatus;
-import io.hhplus.concert.concert.port.ConcertPort;
-import io.hhplus.concert.concert.port.ConcertSchedulePort;
-import io.hhplus.concert.concert.port.ConcertSeatPort;
-import io.hhplus.concert.concert.port.ReservationPort;
-import io.hhplus.concert.payment.domain.Payment;
-import io.hhplus.concert.payment.domain.PaymentTransaction;
-import io.hhplus.concert.payment.domain.enm.PaymentStatus;
-import io.hhplus.concert.payment.port.PaymentPort;
-import io.hhplus.concert.payment.port.PaymentTransactionPort;
-import io.hhplus.concert.payment.usecase.PurchaseReservationUseCase;
-import io.hhplus.concert.user.domain.PointTransaction;
-import io.hhplus.concert.user.domain.UserPoint;
-import io.hhplus.concert.user.port.PointTransactionPort;
-import io.hhplus.concert.user.port.UserPointPort;
+import io.hhplus.concert.app.concert.domain.Reservation;
+import io.hhplus.concert.app.concert.domain.enm.ReservationStatus;
+import io.hhplus.concert.app.concert.port.ConcertPort;
+import io.hhplus.concert.app.concert.port.ConcertSchedulePort;
+import io.hhplus.concert.app.concert.port.ConcertSeatPort;
+import io.hhplus.concert.app.concert.port.ReservationPort;
+import io.hhplus.concert.app.payment.domain.Payment;
+import io.hhplus.concert.app.payment.domain.PaymentTransaction;
+import io.hhplus.concert.app.payment.domain.enm.PaymentStatus;
+import io.hhplus.concert.app.payment.port.PaymentPort;
+import io.hhplus.concert.app.payment.port.PaymentTransactionPort;
+import io.hhplus.concert.app.payment.usecase.PurchaseReservationUseCase;
+import io.hhplus.concert.app.user.domain.PointTransaction;
+import io.hhplus.concert.app.user.domain.UserPoint;
+import io.hhplus.concert.app.user.port.PointTransactionPort;
+import io.hhplus.concert.app.user.port.UserPointPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,8 +32,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PurchaseReservationUseCaseUnitTest {
@@ -82,27 +81,30 @@ public class PurchaseReservationUseCaseUnitTest {
                 paymentKey
         );
 
-        reservation = new Reservation();
-        reservation.setId(512L);
-        reservation.setStatus(ReservationStatus.PENDING);
-        reservation.setUserId(64L);
-        reservation.setConcertSeatId(127L);
-        reservation.setPaymentId(1024L);
+        reservation = Reservation.builder()
+                .id(512L)
+                .status(ReservationStatus.PENDING)
+                .userId(64L)
+                .concertSeatId(127L)
+                .paymentId(1024L)
+                .build();
 
-        payment = new Payment();
-        payment.setId(1024L);
-        payment.setPaymentKey(paymentKey);
-        payment.setUserId(64L);
-        payment.setDueAt(LocalDateTime.now().plusDays(5));
-        payment.setStatus(PaymentStatus.PENDING);
-        payment.setPrice(BigDecimal.valueOf(12000));
+        payment = Payment.builder()
+                .id(1024L)
+                .paymentKey(paymentKey)
+                .userId(64L)
+                .dueAt(LocalDateTime.now().plusDays(5))
+                .status(PaymentStatus.PENDING)
+                .price(BigDecimal.valueOf(12000))
+                .build();
 
-        userPoint = new UserPoint();
-        userPoint.setId(65L);
-        userPoint.setUserId(64L);
-        userPoint.setRemains(40000);
+        userPoint = UserPoint.builder()
+                .id(65L)
+                .userId(64L)
+                .remains(40000)
+                .build();
 
-        when(concertPort.existsById(any(Long.class))).thenReturn(true);
+        lenient().when(concertPort.existsById(any(Long.class))).thenReturn(true);
         lenient().when(concertSchedulePort.existsById(any(Long.class))).thenReturn(true);
         lenient().when(concertSeatPort.existsById(any(Long.class))).thenReturn(true);
         lenient().when(reservationPort.getWithLock(eq(reservation.getId()))).thenReturn(reservation);
@@ -113,7 +115,7 @@ public class PurchaseReservationUseCaseUnitTest {
     @Test
     @DisplayName("콘서트가 없으면 예외가 발생한다")
     public void noConcerts() {
-        when(concertPort.existsById(any(Long.class))).thenReturn(false);
+        doThrow(new NoSuchElementException("Concert not found: " + input.concertId())).when(concertPort).existsOrThrow(any(Long.class));
 
         NoSuchElementException e = assertThrows(
                 NoSuchElementException.class, () -> purchaseReservationUseCase.execute(input));
@@ -124,7 +126,7 @@ public class PurchaseReservationUseCaseUnitTest {
     @Test
     @DisplayName("스케줄이 없으면 예외가 발생한다")
     public void noSchedules() {
-        when(concertSchedulePort.existsById(any(Long.class))).thenReturn(false);
+        doThrow(new NoSuchElementException("Concert Schedule not found: " + input.concertScheduleId())).when(concertSchedulePort).existsOrThrow(any(Long.class));
 
         NoSuchElementException e = assertThrows(
                 NoSuchElementException.class, () -> purchaseReservationUseCase.execute(input));
@@ -135,7 +137,7 @@ public class PurchaseReservationUseCaseUnitTest {
     @Test
     @DisplayName("좌석이 없으면 예외가 발생한다")
     public void noSeats() {
-        when(concertSeatPort.existsById(any(Long.class))).thenReturn(false);
+        doThrow(new NoSuchElementException("Concert Seat not found: " + input.concertSeatId())).when(concertSeatPort).existsOrThrow(any(Long.class));
 
         NoSuchElementException e = assertThrows(
                 NoSuchElementException.class, () -> purchaseReservationUseCase.execute(input));
@@ -147,12 +149,11 @@ public class PurchaseReservationUseCaseUnitTest {
     @DisplayName("예약 정보와 맞지 않은 결제 키를 사용하면 예외가 발생한다")
     public void noMatchPaymentKey() {
         String differentPaymentKey = UUID.randomUUID().toString();
-        when(paymentPort.getByPaymentKeyWithLock(eq(differentPaymentKey))).then(r -> {
-            Payment p = new Payment();
-            p.setId(1280L);
-            p.setPaymentKey(differentPaymentKey);
-            return p;
-        });
+        when(paymentPort.getByPaymentKeyWithLock(eq(differentPaymentKey))).then(r ->
+                Payment.builder()
+                        .id(1280L)
+                        .paymentKey(differentPaymentKey).build()
+        );
 
         IllegalArgumentException e = assertThrows(
                 IllegalArgumentException.class,
@@ -173,7 +174,7 @@ public class PurchaseReservationUseCaseUnitTest {
     @Test
     @DisplayName("이미 완료된 예약에 대해 재요청을 하면 예외가 발생한다")
     public void completedReservation() {
-        reservation.setStatus(ReservationStatus.COMPLETE);
+        reservation.setCompleted();
 
         IllegalStateException e = assertThrows(
                 IllegalStateException.class,
@@ -186,7 +187,7 @@ public class PurchaseReservationUseCaseUnitTest {
     @Test
     @DisplayName("이미 취소된 예약에 대해 요청을 하면 예외가 발생한다")
     public void cancelledReservation() {
-        reservation.setStatus(ReservationStatus.CANCELLED);
+        reservation.setCancelled();
 
         IllegalStateException e = assertThrows(
                 IllegalStateException.class,
@@ -199,13 +200,15 @@ public class PurchaseReservationUseCaseUnitTest {
     @Test
     @DisplayName("포인트가 결제해야할 금액보다 적으면 결제가 이뤄지지 않아야 한다")
     public void pointNotEnough() {
-        userPoint.setRemains(payment.getPrice().intValue() - 1000);
+        userPoint.deduct(30000);  // 40,000 - 30,000
         lenient().when(pointTransactionPort.save(any(PointTransaction.class))).thenThrow(AssertionError.class);
 
-        PurchaseReservationUseCase.Output output = purchaseReservationUseCase.execute(input);
+        IllegalStateException e = assertThrows(
+                IllegalStateException.class,
+                () -> purchaseReservationUseCase.execute(input)
+        );
 
-        assertEquals(ReservationStatus.PENDING, output.reservationStatus());
-        assertEquals(PaymentStatus.PENDING, output.purchaseResult().paymentStatus());
+        assertEquals("잔여 포인트 부족: (remains = 10000 < amount = 12000)", e.getMessage());
     }
 
     @Test
@@ -213,14 +216,30 @@ public class PurchaseReservationUseCaseUnitTest {
     public void complete() {
         when(userPointPort.save(any(UserPoint.class))).then(r -> r.getArgument(0));
         when(pointTransactionPort.save(any(PointTransaction.class))).then(r -> {
-            PointTransaction result = r.getArgument(0);
-            result.setId(2560L);
-            return result;
+            PointTransaction origin = r.getArgument(0);
+            return PointTransaction.builder()
+                    .id(2560L)
+                    .userPointId(origin.getUserPointId())
+                    .remains(origin.getRemains())
+                    .amount(origin.getAmount())
+                    .type(origin.getType())
+                    .status(origin.getStatus())
+                    .paymentId(origin.getPaymentId())
+                    .createdAt(origin.getCreatedAt())
+                    .modifiedAt(origin.getModifiedAt())
+                    .build();
         });
         when(paymentTransactionPort.save(any(PaymentTransaction.class))).then(r -> {
-            PaymentTransaction result = r.getArgument(0);
-            result.setId(2160L);
-            return result;
+            PaymentTransaction origin = r.getArgument(0);
+            return PaymentTransaction.builder()
+                    .id(2160L)
+                    .paymentId(origin.getPaymentId())
+                    .method(origin.getMethod())
+                    .status(origin.getStatus())
+                    .amount(origin.getAmount())
+                    .createdAt(origin.getCreatedAt())
+                    .modifiedAt(origin.getModifiedAt())
+                    .build();
         });
         when(reservationPort.save(any(Reservation.class))).then(r -> r.getArgument(0));
         when(paymentPort.save(any(Payment.class))).then(r -> r.getArgument(0));

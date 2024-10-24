@@ -1,12 +1,12 @@
 package io.hhplus.concert.unit.payment.usecase;
 
-import io.hhplus.concert.payment.domain.Payment;
-import io.hhplus.concert.payment.port.PaymentPort;
-import io.hhplus.concert.payment.usecase.PendingChargeUserPointUseCase;
-import io.hhplus.concert.user.domain.PointTransaction;
-import io.hhplus.concert.user.domain.UserPoint;
-import io.hhplus.concert.user.port.PointTransactionPort;
-import io.hhplus.concert.user.port.UserPointPort;
+import io.hhplus.concert.app.payment.domain.Payment;
+import io.hhplus.concert.app.payment.port.PaymentPort;
+import io.hhplus.concert.app.payment.usecase.PendingChargeUserPointUseCase;
+import io.hhplus.concert.app.user.domain.PointTransaction;
+import io.hhplus.concert.app.user.domain.UserPoint;
+import io.hhplus.concert.app.user.port.PointTransactionPort;
+import io.hhplus.concert.app.user.port.UserPointPort;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -48,10 +47,11 @@ public class PendingChargeUserPointUseCaseUnitTest {
     @BeforeEach
     public void setUp() {
         userId = 64L;
-        userPoint = new UserPoint();
-        userPoint.setId(65L);
-        userPoint.setUserId(userId);
-        userPoint.setRemains(5000);
+        userPoint = UserPoint.builder()
+                .id(65L)
+                .userId(userId)
+                .remains(5000)
+                .build();
     }
 
     @AfterEach
@@ -65,14 +65,30 @@ public class PendingChargeUserPointUseCaseUnitTest {
     public void createPointTransaction() {
         when(userPointPort.getByUserIdWithLock(eq(userPoint.getUserId()))).thenReturn(userPoint);
         when(paymentPort.save(any(Payment.class))).then(r -> {
-            createdPayment = r.getArgument(0);
-            createdPayment.setId(1280L);
-            return createdPayment;
+            Payment origin = r.getArgument(0);
+            return createdPayment = Payment.builder()
+                    .id(1280L)
+                    .userId(origin.getUserId())
+                    .paymentKey(origin.getPaymentKey())
+                    .price(origin.getPrice())
+                    .status(origin.getStatus())
+                    .dueAt(origin.getDueAt())
+                    .paidAt(origin.getPaidAt())
+                    .build();
         });
         when(pointTransactionPort.save(any(PointTransaction.class))).then(r -> {
-            createdPointTransaction = r.getArgument(0);
-            createdPointTransaction.setId(1440L);
-            return createdPointTransaction;
+            PointTransaction origin = r.getArgument(0);
+            return createdPointTransaction = PointTransaction.builder()
+                    .id(1440L)
+                    .userPointId(origin.getUserPointId())
+                    .remains(origin.getRemains())
+                    .amount(origin.getAmount())
+                    .type(origin.getType())
+                    .status(origin.getStatus())
+                    .paymentId(origin.getPaymentId())
+                    .createdAt(origin.getCreatedAt())
+                    .modifiedAt(origin.getModifiedAt())
+                    .build();
         });
 
         pendingChargeUserPointUseCase.execute(
