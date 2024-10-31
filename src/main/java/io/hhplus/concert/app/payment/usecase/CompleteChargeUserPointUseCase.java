@@ -46,7 +46,6 @@ public class CompleteChargeUserPointUseCase {
     ) { }
 
     @RedisLock(key = "Point", dtoName = "input", fields = {"keyUuid"})
-    @Transactional
     public Output execute(Input input) {
         Payment payment = paymentPort.getByPaymentKey(input.paymentKey());
         switch (payment.getStatus()) {

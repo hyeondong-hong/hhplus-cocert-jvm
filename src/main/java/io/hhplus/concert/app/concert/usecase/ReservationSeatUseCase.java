@@ -45,7 +45,6 @@ public class ReservationSeatUseCase {
     ) { }
 
     @RedisLock(key = "Reservation", dtoName = "input", fields = {"concertId", "concertScheduleId", "concertSeatId"})
-    @Transactional
     public Output execute(Input input) {
 
         Token token = tokenPort.getByKey(input.keyUuid());

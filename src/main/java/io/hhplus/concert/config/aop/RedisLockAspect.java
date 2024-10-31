@@ -1,6 +1,7 @@
 package io.hhplus.concert.config.aop;
 
 import io.hhplus.concert.config.aop.annotation.RedisLock;
+import io.hhplus.concert.config.aop.component.TransactionalJoinPoint;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -18,11 +19,11 @@ import java.util.StringJoiner;
 @Slf4j
 @Component
 @Aspect
-@Order(1)  // @Transactional 어노테이션은 @Order(100)으로 설정되어 있어서 트랜잭션 보다 먼저 실행이 보장됨
 @AllArgsConstructor
 public class RedisLockAspect {
 
     private final RedissonClient redissonClient;
+    private final TransactionalJoinPoint transactionalJoinPoint;
 
     @Around("@annotation(redisLock)")
     public Object lockAndExecute(ProceedingJoinPoint joinPoint, RedisLock redisLock) throws Throwable {
@@ -34,7 +35,7 @@ public class RedisLockAspect {
         try {
             lock.lock();
             log.info("Lock 취득 성공: thread-id = {}, key = {}", threadId, key);
-            return joinPoint.proceed();
+            return transactionalJoinPoint.execute(joinPoint);
         } finally {
             lock.unlock();
         }

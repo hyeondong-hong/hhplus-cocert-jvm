@@ -56,9 +56,7 @@ public class PurchaseReservationUseCase {
             PurchaseResult purchaseResult
     ) { }
 
-//    @RedisLock(key = "Reservation", dtoName = "input", fields = {"concertId", "concertScheduleId", "concertSeatId"})
     @RedisLock(key = "Point", dtoName = "input", fields = {"keyUuid"})
-    @Transactional
     public Output execute(Input input) {
 
         concertPort.existsOrThrow(input.concertId());

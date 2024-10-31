@@ -39,7 +39,6 @@ public class PendingChargeUserPointUseCase {
     ) { }
 
     @RedisLock(key = "Point", dtoName = "input", fields = {"keyUuid"})
-    @Transactional
     public Output execute(Input input) {
         UserPoint userPoint = userPointPort.getByUserId(input.userId());
 
