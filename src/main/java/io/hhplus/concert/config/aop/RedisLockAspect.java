@@ -30,11 +30,11 @@ public class RedisLockAspect {
         Long threadId = Thread.currentThread().getId();
 
         String key = redisLock.key() + ":" + getDynamicKey(joinPoint, redisLock.dtoName(), redisLock.fields());
-        log.info("Lock 취득 시도: thread-id = {}, key = {}", threadId, key);
+        log.debug("Lock 취득 시도: thread-id = {}, key = {}", threadId, key);
         RLock lock = redissonClient.getLock(key);
         try {
             lock.lock();
-            log.info("Lock 취득 성공: thread-id = {}, key = {}", threadId, key);
+            log.debug("Lock 취득 성공: thread-id = {}, key = {}", threadId, key);
             return transactionalJoinPoint.execute(joinPoint);
         } finally {
             lock.unlock();
