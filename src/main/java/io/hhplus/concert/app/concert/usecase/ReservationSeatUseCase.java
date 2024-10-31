@@ -13,15 +13,13 @@ import io.hhplus.concert.app.payment.domain.enm.PaymentStatus;
 import io.hhplus.concert.app.payment.port.PaymentPort;
 import io.hhplus.concert.app.user.domain.Token;
 import io.hhplus.concert.app.user.port.TokenPort;
+import io.hhplus.concert.config.aop.annotation.RedisLock;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.NoSuchElementException;
 
 @Slf4j
 @AllArgsConstructor
@@ -46,6 +44,7 @@ public class ReservationSeatUseCase {
             ReservationResult reservationResult
     ) { }
 
+    @RedisLock(key = "Reservation", dtoName = "input", fields = {"concertId", "concertScheduleId", "concertSeatId"})
     @Transactional
     public Output execute(Input input) {
 

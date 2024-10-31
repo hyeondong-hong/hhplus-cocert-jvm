@@ -10,10 +10,9 @@ import io.hhplus.concert.app.user.domain.enm.PointTransactionStatus;
 import io.hhplus.concert.app.user.domain.enm.PointTransactionType;
 import io.hhplus.concert.app.user.port.PointTransactionPort;
 import io.hhplus.concert.app.user.port.UserPointPort;
+import io.hhplus.concert.config.aop.annotation.RedisLock;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +37,7 @@ public class PendingChargeUserPointUseCase {
             PendingPointChargeResult pendingPointChargeResult
     ) { }
 
+    @RedisLock(key = "Point", dtoName = "input", fields = {"userId"})
     @Transactional
     public Output execute(Input input) {
         UserPoint userPoint = userPointPort.getByUserId(input.userId());

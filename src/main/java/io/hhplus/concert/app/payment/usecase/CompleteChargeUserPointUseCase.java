@@ -14,6 +14,7 @@ import io.hhplus.concert.app.user.domain.UserPoint;
 import io.hhplus.concert.app.user.domain.enm.PointTransactionType;
 import io.hhplus.concert.app.user.port.PointTransactionPort;
 import io.hhplus.concert.app.user.port.UserPointPort;
+import io.hhplus.concert.config.aop.annotation.RedisLock;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
@@ -43,6 +44,7 @@ public class CompleteChargeUserPointUseCase {
             PointChangeResult pointChangeResult
     ) { }
 
+    @RedisLock(key = "Point", dtoName = "input", fields = {"userId"})
     @Transactional
     public Output execute(Input input) {
         Payment payment = paymentPort.getByPaymentKey(input.paymentKey());
