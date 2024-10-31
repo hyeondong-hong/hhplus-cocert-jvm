@@ -43,6 +43,7 @@ public class PurchaseReservationUseCase {
     private final PointTransactionPort pointTransactionPort;
 
     public record Input(
+            String keyUuid,
             Long concertId,
             Long concertScheduleId,
             Long concertSeatId,
@@ -55,7 +56,8 @@ public class PurchaseReservationUseCase {
             PurchaseResult purchaseResult
     ) { }
 
-    @RedisLock(key = "Reservation", dtoName = "input", fields = {"concertId", "concertScheduleId", "concertSeatId"})
+//    @RedisLock(key = "Reservation", dtoName = "input", fields = {"concertId", "concertScheduleId", "concertSeatId"})
+    @RedisLock(key = "Point", dtoName = "input", fields = {"keyUuid"})
     @Transactional
     public Output execute(Input input) {
 

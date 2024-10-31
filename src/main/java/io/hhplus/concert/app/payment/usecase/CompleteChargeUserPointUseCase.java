@@ -36,6 +36,7 @@ public class CompleteChargeUserPointUseCase {
     private final PointTransactionPort pointTransactionPort;
 
     public record Input(
+            String keyUuid,
             Long userId,
             String paymentKey
     ) { }
@@ -44,7 +45,7 @@ public class CompleteChargeUserPointUseCase {
             PointChangeResult pointChangeResult
     ) { }
 
-    @RedisLock(key = "Point", dtoName = "input", fields = {"userId"})
+    @RedisLock(key = "Point", dtoName = "input", fields = {"keyUuid"})
     @Transactional
     public Output execute(Input input) {
         Payment payment = paymentPort.getByPaymentKey(input.paymentKey());

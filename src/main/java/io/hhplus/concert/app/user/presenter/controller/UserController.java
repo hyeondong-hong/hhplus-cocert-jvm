@@ -51,11 +51,13 @@ public class UserController {
 
     @PostMapping("/{userId}/points/pending")
     public PendingPointChargeResult pendingChargeUserPoint(
+            @RequestHeader("Authorization") String keyUuid,
             @PathVariable @Min(1) Long userId,
             @RequestBody ChargePointResult requestBody
     ) {
         PendingChargeUserPointUseCase.Output output = pendingChargeUserPointUseCase.execute(
                 new PendingChargeUserPointUseCase.Input(
+                        keyUuid,
                         userId,
                         requestBody.chargeAmount()
                 )
@@ -65,11 +67,13 @@ public class UserController {
 
     @PatchMapping("/{userId}/points")
     public PointChangeResult completeChargeUserPoint(
+            @RequestHeader("Authorization") String keyUuid,
             @PathVariable @Min(1) Long userId,
             @RequestParam String paymentKey
     ) {
         CompleteChargeUserPointUseCase.Output output = completeChargeUserPointUseCase.execute(
                 new CompleteChargeUserPointUseCase.Input(
+                        keyUuid,
                         userId,
                         paymentKey
                 )

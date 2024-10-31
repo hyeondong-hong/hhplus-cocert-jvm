@@ -96,6 +96,7 @@ public class ConcertController {
 
     @PatchMapping("/{concertId}/schedules/{concertScheduleId}/seats/{concertSeatId}/reservations/{reservationId}")
     public PurchaseResult purchase(
+            @RequestHeader("Authorization") String keyUuid,
             @PathVariable @Min(1) Long concertId,
             @PathVariable @Min(1) Long concertScheduleId,
             @PathVariable @Min(1) Long concertSeatId,
@@ -104,6 +105,7 @@ public class ConcertController {
     ) {
         PurchaseReservationUseCase.Output output = purchaseReservationUseCase.execute(
                 new PurchaseReservationUseCase.Input(
+                        keyUuid,
                         concertId,
                         concertScheduleId,
                         concertSeatId,

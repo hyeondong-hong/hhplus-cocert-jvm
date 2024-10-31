@@ -29,6 +29,7 @@ public class PendingChargeUserPointUseCase {
     private final PointTransactionPort pointTransactionPort;
 
     public record Input(
+            String keyUuid,
             Long userId,
             BigDecimal amount
     ) { }
@@ -37,7 +38,7 @@ public class PendingChargeUserPointUseCase {
             PendingPointChargeResult pendingPointChargeResult
     ) { }
 
-    @RedisLock(key = "Point", dtoName = "input", fields = {"userId"})
+    @RedisLock(key = "Point", dtoName = "input", fields = {"keyUuid"})
     @Transactional
     public Output execute(Input input) {
         UserPoint userPoint = userPointPort.getByUserId(input.userId());
