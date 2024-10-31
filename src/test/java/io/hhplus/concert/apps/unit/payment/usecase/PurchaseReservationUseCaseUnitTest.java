@@ -74,6 +74,7 @@ public class PurchaseReservationUseCaseUnitTest {
     public void setUp() {
         paymentKey = UUID.randomUUID().toString();
         input = new PurchaseReservationUseCase.Input(
+                "99543f87-9280-45f8-9a56-84a3a3d1312b",
                 1L,
                 3L,
                 127L,
@@ -159,6 +160,7 @@ public class PurchaseReservationUseCaseUnitTest {
                 IllegalArgumentException.class,
                 () -> purchaseReservationUseCase.execute(
                         new PurchaseReservationUseCase.Input(
+                                "99543f87-9280-45f8-9a56-84a3a3d1312b",
                                 input.concertId(),
                                 input.concertScheduleId(),
                                 input.concertSeatId(),

@@ -53,6 +53,7 @@ public class PendingChargeUserPointUseCaseIntegrationTest {
     public void pendingChargeUserPoint() {
         PendingChargeUserPointUseCase.Output output = pendingChargeUserPointUseCase.execute(
                 new PendingChargeUserPointUseCase.Input(
+                        "99543f87-9280-45f8-9a56-84a3a3d1312b",
                         1L,
                         BigDecimal.valueOf(50000)
                 )

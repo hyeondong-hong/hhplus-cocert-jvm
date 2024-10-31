@@ -93,6 +93,7 @@ public class PendingChargeUserPointUseCaseUnitTest {
 
         pendingChargeUserPointUseCase.execute(
                 new PendingChargeUserPointUseCase.Input(
+                        "99543f87-9280-45f8-9a56-84a3a3d1312b",
                         userId,
                         BigDecimal.valueOf(5000)
                 )

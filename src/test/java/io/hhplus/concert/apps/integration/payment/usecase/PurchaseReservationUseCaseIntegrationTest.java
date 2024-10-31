@@ -121,6 +121,7 @@ public class PurchaseReservationUseCaseIntegrationTest {
     public void purchaseReservation() {
         PurchaseReservationUseCase.Output output = purchaseReservationUseCase.execute(
                 new PurchaseReservationUseCase.Input(
+                        "99543f87-9280-45f8-9a56-84a3a3d1312b",
                         1L,
                         1L,
                         1L,

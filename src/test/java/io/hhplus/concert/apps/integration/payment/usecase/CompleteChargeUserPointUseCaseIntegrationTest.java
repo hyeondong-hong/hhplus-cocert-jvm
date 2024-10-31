@@ -86,6 +86,8 @@ public class CompleteChargeUserPointUseCaseIntegrationTest {
     public void completeChargeUserPoint() {
         CompleteChargeUserPointUseCase.Output output = completeChargeUserPointUseCase.execute(
                 new CompleteChargeUserPointUseCase.Input(
+
+                        "99543f87-9280-45f8-9a56-84a3a3d1312b",
                         1L,
                         paymentKey
                 )
