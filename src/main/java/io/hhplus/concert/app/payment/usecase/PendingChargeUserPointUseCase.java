@@ -40,7 +40,7 @@ public class PendingChargeUserPointUseCase {
 
     @Transactional
     public Output execute(Input input) {
-        UserPoint userPoint = userPointPort.getByUserIdWithLock(input.userId());
+        UserPoint userPoint = userPointPort.getByUserId(input.userId());
 
         Payment payment = paymentPort.save(
                 Payment.builder()

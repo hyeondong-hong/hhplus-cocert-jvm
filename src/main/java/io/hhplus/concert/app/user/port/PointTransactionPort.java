@@ -19,8 +19,12 @@ public class PointTransactionPort {
         return jpaRepository.findByPaymentId(paymentId).orElseThrow();
     }
 
-    public List<PointTransaction> getAllByStatusesWithLock(Collection<PointTransactionStatus> statuses) {
+    public List<PointTransaction> getAllByStatuses(Collection<PointTransactionStatus> statuses) {
         return jpaRepository.findAllByStatusIn(statuses);
+    }
+
+    public List<PointTransaction> getAllByStatusesWithLock(Collection<PointTransactionStatus> statuses) {
+        return jpaRepository.findAllByStatusInWithLock(statuses);
     }
 
     public PointTransaction save(PointTransaction pointTransaction) {

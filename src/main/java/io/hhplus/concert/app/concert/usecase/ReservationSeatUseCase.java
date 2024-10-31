@@ -54,7 +54,7 @@ public class ReservationSeatUseCase {
         concertPort.existsOrThrow(input.concertId());
         concertSchedulePort.existsOrThrow(input.concertScheduleId());
 
-        ConcertSeat seat = concertSeatPort.getWithLock(input.concertSeatId());
+        ConcertSeat seat = concertSeatPort.get(input.concertSeatId());
         if (seat.isClosed()) {
             log.info("예약된 좌석에 예약 시도: uuid = {}, concertSeatId = {}", token.getKeyUuid(), seat.getId());
             throw new IllegalStateException("이미 예약된 좌석: " + seat.getId());

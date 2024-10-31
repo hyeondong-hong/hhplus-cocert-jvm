@@ -24,7 +24,9 @@ public interface TokenJpaRepository extends JpaRepository<Token, Long> {
 
     Optional<Token> findByUserId(Long userId);
 
+    List<Long> findAllIdsByExpiresAtLessThan(LocalDateTime baseDateTime);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT t.id FROM Token t WHERE t.expiresAt < :baseDateTime")
-    List<Long> findAllIdsByExpiresAtLessThan(LocalDateTime baseDateTime);
+    List<Long> findAllIdsByExpiresAtLessThanWithLock(LocalDateTime baseDateTime);
 }

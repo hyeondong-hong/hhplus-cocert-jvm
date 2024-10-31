@@ -32,9 +32,7 @@ public class ReleasePointTransactionsUseCase {
 
     @Transactional
     public Output execute(Input input) {
-        // reservation -> payment 순서대로 비관락
-        // 다른 트랜잭션 블록에서 payment -> reservation 순서로 처리 시 데드락에 주의
-        List<PointTransaction> originPointTransactions = pointTransactionPort.getAllByStatusesWithLock(
+        List<PointTransaction> originPointTransactions = pointTransactionPort.getAllByStatuses(
                 List.of(PointTransactionStatus.PENDING)
         );
 
@@ -42,7 +40,7 @@ public class ReleasePointTransactionsUseCase {
             return new Output();
         }
 
-        List<Payment> payments = paymentPort.getExpiredAllByIdsWithLock(
+        List<Payment> payments = paymentPort.getExpiredAllByIds(
                 originPointTransactions.stream().map(PointTransaction::getPaymentId).toList()
         );
 

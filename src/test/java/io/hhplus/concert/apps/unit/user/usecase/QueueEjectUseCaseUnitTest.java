@@ -43,8 +43,8 @@ public class QueueEjectUseCaseUnitTest {
     @Test
     @DisplayName("이용자를 대기열에서 방출할 때 병합된 토큰 ID 배열에는 중복된 ID가 없어야 한다")
     public void ejectMergedTokens() {
-        when(tokenPort.findAllIdsExpiredWithLock()).thenReturn(List.of(1L,2L,3L,4L,5L,6L));
-        when(serviceEntryPort.findAllTokenIdExpiredWithLock()).thenReturn(List.of(3L,5L,7L,9L,11L));
+        when(tokenPort.findAllIdsExpired()).thenReturn(List.of(1L,2L,3L,4L,5L,6L));
+        when(serviceEntryPort.findAllTokenIdExpired()).thenReturn(List.of(3L,5L,7L,9L,11L));
         doAnswer(i -> {
             ejected.addAll(i.getArgument(0));
             return null;

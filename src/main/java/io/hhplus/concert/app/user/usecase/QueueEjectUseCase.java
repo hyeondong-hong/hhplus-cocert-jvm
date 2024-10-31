@@ -29,10 +29,10 @@ public class QueueEjectUseCase {
     @Transactional
     public Output execute(Input input) {
         // 토큰이 만료된 이용자 토큰 ID
-        List<Long> expiredTokens = tokenPort.findAllIdsExpiredWithLock();
+        List<Long> expiredTokens = tokenPort.findAllIdsExpired();
 
         // 등록 후 10분이 지난 이용자 토큰 ID
-        List<Long> expiredEnrolls = serviceEntryPort.findAllTokenIdExpiredWithLock();
+        List<Long> expiredEnrolls = serviceEntryPort.findAllTokenIdExpired();
 
         List<Long> ejectTargets = Stream.concat(
                 expiredTokens.stream(),

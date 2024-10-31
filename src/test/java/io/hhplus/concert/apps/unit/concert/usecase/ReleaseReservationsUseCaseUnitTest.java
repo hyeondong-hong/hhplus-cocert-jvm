@@ -54,8 +54,8 @@ public class ReleaseReservationsUseCaseUnitTest {
     @Test
     @DisplayName("임시 상태인 예약이 없으면 다음 스텝으로 넘어가지 않는다")
     public void noPendingReservations() {
-        when(reservationPort.getAllByStatusesWithLock(any(List.class))).thenReturn(List.of());
-        lenient().when(paymentPort.getExpiredAllByIdsWithLock(any(List.class))).thenThrow(AssertionError.class);
+        when(reservationPort.getAllByStatuses(any(List.class))).thenReturn(List.of());
+        lenient().when(paymentPort.getExpiredAllByIds(any(List.class))).thenThrow(AssertionError.class);
 
         assertDoesNotThrow(() -> releaseReservationsUseCase.execute(new ReleaseReservationsUseCase.Input()));
     }
@@ -63,8 +63,8 @@ public class ReleaseReservationsUseCaseUnitTest {
     @Test
     @DisplayName("임시 상태의 예약이 있어도 만료된 결제 정보가 없으면 다음 스텝으로 넘어가지 않는다")
     public void noExpiredPayments() {
-        when(reservationPort.getAllByStatusesWithLock(any(List.class))).thenReturn(List.of(new Reservation()));
-        when(paymentPort.getExpiredAllByIdsWithLock(any(List.class))).thenReturn(List.of());
+        when(reservationPort.getAllByStatuses(any(List.class))).thenReturn(List.of(new Reservation()));
+        when(paymentPort.getExpiredAllByIds(any(List.class))).thenReturn(List.of());
         lenient().when(paymentPort.saveAll(any(List.class))).thenThrow(AssertionError.class);
 
         assertDoesNotThrow(() -> releaseReservationsUseCase.execute(new ReleaseReservationsUseCase.Input()));
@@ -73,7 +73,7 @@ public class ReleaseReservationsUseCaseUnitTest {
     @Test
     @DisplayName("만료된 결제정보가 존재하면 취소 상태로 변경한다")
     public void releaseExpiredPayments() {
-        when(reservationPort.getAllByStatusesWithLock(any(List.class))).then(r -> {
+        when(reservationPort.getAllByStatuses(any(List.class))).then(r -> {
             selectedReservations = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
                 selectedReservations.add(
@@ -88,7 +88,7 @@ public class ReleaseReservationsUseCaseUnitTest {
             }
             return selectedReservations;
         });
-        when(paymentPort.getExpiredAllByIdsWithLock(any(List.class))).then(r -> {
+        when(paymentPort.getExpiredAllByIds(any(List.class))).then(r -> {
             selectedPayments = new ArrayList<>();
             for (int i = 0; i < 3; i++) {
                 selectedPayments.add(

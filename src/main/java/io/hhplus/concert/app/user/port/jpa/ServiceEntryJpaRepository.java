@@ -18,15 +18,20 @@ import java.util.Optional;
 @Repository
 public interface ServiceEntryJpaRepository extends JpaRepository<ServiceEntry, Long> {
 
+    List<Long> findAllTokenIdByEnrolledAtLessThan(LocalDateTime baseDateTime);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT e.tokenId FROM ServiceEntry e WHERE e.enrolledAt < :baseDateTime")
-    List<Long> findAllTokenIdByEnrolledAtLessThan(LocalDateTime baseDateTime);
+    List<Long> findAllTokenIdByEnrolledAtLessThanWithLock(LocalDateTime baseDateTime);
 
     void deleteByTokenId(Long tokenId);
     void deleteAllByTokenIdIn(Collection<Long> tokenIds);
 
     Optional<ServiceEntry> findByTokenId(Long tokenId);
     Boolean existsByTokenId(Long tokenId);
+
+    @Query("SELECT e.tokenId FROM ServiceEntry e WHERE e.enrolledAt IS NULL ORDER BY e.entryAt ASC")
+    List<Long> findAllTokenIdByOrderByEntryAtTop(Pageable pageable);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT e.tokenId FROM ServiceEntry e WHERE e.enrolledAt IS NULL ORDER BY e.entryAt ASC")

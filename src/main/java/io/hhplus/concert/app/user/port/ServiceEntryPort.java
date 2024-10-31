@@ -36,6 +36,10 @@ public class ServiceEntryPort {
         return jpaRepository.getEntryRankByTokenId(tokenId);
     }
 
+    public List<Long> findEnrollableAllTokenIdByTop30() {
+        return jpaRepository.findAllTokenIdByOrderByEntryAtTop(PageRequest.of(0, 30));
+    }
+
     public List<Long> findEnrollableAllTokenIdByTop30WithLock() {
         return jpaRepository.findAllTokenIdByOrderByEntryAtTopWithLock(PageRequest.of(0, 30));
     }
@@ -44,8 +48,12 @@ public class ServiceEntryPort {
         jpaRepository.updateAllByTokenIdIn(tokenIds, LocalDateTime.now());
     }
 
-    public List<Long> findAllTokenIdExpiredWithLock() {
+    public List<Long> findAllTokenIdExpired() {
         return jpaRepository.findAllTokenIdByEnrolledAtLessThan(LocalDateTime.now().minusMinutes(10L));
+    }
+
+    public List<Long> findAllTokenIdExpiredWithLock() {
+        return jpaRepository.findAllTokenIdByEnrolledAtLessThanWithLock(LocalDateTime.now().minusMinutes(10L));
     }
 
     public void delete(Long tokenId) {

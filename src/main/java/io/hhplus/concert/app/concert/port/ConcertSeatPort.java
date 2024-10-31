@@ -49,7 +49,15 @@ public class ConcertSeatPort {
         return jpaRepository.findAllByIdIn(ids);
     }
 
-    public List<ConcertSeat> getAllByConcertScheduleIdWithLock(Long concertScheduleId) {
+    public List<ConcertSeat> getAllByIds(List<Long> ids) {
+        return jpaRepository.findAllByIdInWithLock(ids);
+    }
+
+    public List<ConcertSeat> getAllByConcertScheduleId(Long concertScheduleId) {
         return jpaRepository.findAllByConcertScheduleId(concertScheduleId);
+    }
+
+    public List<ConcertSeat> getAllByConcertScheduleIdWithLock(Long concertScheduleId) {
+        return jpaRepository.findAllByConcertScheduleIdWithLock(concertScheduleId);
     }
 }

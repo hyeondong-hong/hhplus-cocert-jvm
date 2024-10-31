@@ -87,7 +87,7 @@ public class SearchAvailableSeatsUseCaseUnitTest {
     @DisplayName("유효한 콘서트 좌석을 조회한다")
     public void searchSchedules() {
 
-        when(concertSeatPort.getAllByConcertScheduleIdWithLock(eq(2L))).then(r -> {
+        when(concertSeatPort.getAllByConcertScheduleId(eq(2L))).then(r -> {
             List<ConcertSeat> items = new ArrayList<>();
             for (int i = 0; i < 50; i++) {
                 ConcertSeat item = ConcertSeat.builder()

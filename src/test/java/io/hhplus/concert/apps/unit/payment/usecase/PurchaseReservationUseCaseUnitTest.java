@@ -107,9 +107,9 @@ public class PurchaseReservationUseCaseUnitTest {
         lenient().when(concertPort.existsById(any(Long.class))).thenReturn(true);
         lenient().when(concertSchedulePort.existsById(any(Long.class))).thenReturn(true);
         lenient().when(concertSeatPort.existsById(any(Long.class))).thenReturn(true);
-        lenient().when(reservationPort.getWithLock(eq(reservation.getId()))).thenReturn(reservation);
-        lenient().when(paymentPort.getByPaymentKeyWithLock(eq(paymentKey))).thenReturn(payment);
-        lenient().when(userPointPort.getByUserIdWithLock(eq(userPoint.getUserId()))).thenReturn(userPoint);
+        lenient().when(reservationPort.get(eq(reservation.getId()))).thenReturn(reservation);
+        lenient().when(paymentPort.getByPaymentKey(eq(paymentKey))).thenReturn(payment);
+        lenient().when(userPointPort.getByUserId(eq(userPoint.getUserId()))).thenReturn(userPoint);
     }
 
     @Test
@@ -149,7 +149,7 @@ public class PurchaseReservationUseCaseUnitTest {
     @DisplayName("예약 정보와 맞지 않은 결제 키를 사용하면 예외가 발생한다")
     public void noMatchPaymentKey() {
         String differentPaymentKey = UUID.randomUUID().toString();
-        when(paymentPort.getByPaymentKeyWithLock(eq(differentPaymentKey))).then(r ->
+        when(paymentPort.getByPaymentKey(eq(differentPaymentKey))).then(r ->
                 Payment.builder()
                         .id(1280L)
                         .paymentKey(differentPaymentKey).build()

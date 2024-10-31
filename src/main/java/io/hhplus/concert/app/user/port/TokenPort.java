@@ -38,8 +38,12 @@ public class TokenPort {
         return jpaRepository.save(token);
     }
 
-    public List<Long> findAllIdsExpiredWithLock() {
+    public List<Long> findAllIdsExpired() {
         return jpaRepository.findAllIdsByExpiresAtLessThan(LocalDateTime.now());
+    }
+
+    public List<Long> findAllIdsExpiredWithLock() {
+        return jpaRepository.findAllIdsByExpiresAtLessThanWithLock(LocalDateTime.now());
     }
 
     public void deleteAll(Iterable<Token> tokens) {

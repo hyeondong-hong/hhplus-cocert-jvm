@@ -34,8 +34,12 @@ public class ReservationPort {
         return jpaRepository.findAllConcertSeatIdsByConcertSeatIdInAndStatusInWithLock(concertSeatIds, statuses);
     }
 
-    public List<Reservation> getAllByStatusesWithLock(List<ReservationStatus> statuses) {
+    public List<Reservation> getAllByStatuses(List<ReservationStatus> statuses) {
         return jpaRepository.findAllByStatusIn(statuses);
+    }
+
+    public List<Reservation> getAllByStatusesWithLock(List<ReservationStatus> statuses) {
+        return jpaRepository.findAllByStatusInWithLock(statuses);
     }
 
     public List<Reservation> getAllByConcertSeatIdsAndStatusesWithLock(List<Long> concertSeatIds, List<ReservationStatus> statuses) {

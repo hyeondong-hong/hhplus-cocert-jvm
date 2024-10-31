@@ -44,8 +44,7 @@ public class SearchAvailableSeatsUseCase {
             throw new NoSuchElementException("Concert Schedule not found: " + input.concertScheduleId());
         }
 
-        // ** 원래는 낙관락 사용해야 하는 부분.
-        List<ConcertSeat> seats = concertSeatPort.getAllByConcertScheduleIdWithLock(input.concertScheduleId());
+        List<ConcertSeat> seats = concertSeatPort.getAllByConcertScheduleId(input.concertScheduleId());
 
         return new Output(
                 seats.stream().map(

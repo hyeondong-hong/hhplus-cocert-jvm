@@ -45,7 +45,7 @@ public class CompleteChargeUserPointUseCase {
 
     @Transactional
     public Output execute(Input input) {
-        Payment payment = paymentPort.getByPaymentKeyWithLock(input.paymentKey());
+        Payment payment = paymentPort.getByPaymentKey(input.paymentKey());
         switch (payment.getStatus()) {
             case PAID -> {
                 log.debug("이미 완료된 결제: paymentId = {}", payment.getId());
@@ -67,7 +67,7 @@ public class CompleteChargeUserPointUseCase {
             throw new IllegalArgumentException("결제 기한 만료");
         }
 
-        UserPoint userPoint = userPointPort.getByUserIdWithLock(input.userId());
+        UserPoint userPoint = userPointPort.getByUserId(input.userId());
 
         PgResultType result = hangHaePgPort.purchase(
                 payment.getUserId(),

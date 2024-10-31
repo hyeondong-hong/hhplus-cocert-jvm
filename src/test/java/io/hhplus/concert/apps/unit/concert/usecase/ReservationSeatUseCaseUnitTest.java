@@ -84,7 +84,7 @@ public class ReservationSeatUseCaseUnitTest {
         lenient().when(tokenPort.getByKey(eq(keyUuid))).thenReturn(token);
         lenient().when(concertPort.existsById(any(Long.class))).thenReturn(true);
         lenient().when(concertSchedulePort.existsById(any(Long.class))).thenReturn(true);
-        lenient().when(concertSeatPort.getWithLock(any(Long.class))).thenReturn(concertSeat);
+        lenient().when(concertSeatPort.get(any(Long.class))).thenReturn(concertSeat);
         lenient().when(concertSeatPort.save(any(ConcertSeat.class))).thenReturn(concertSeat);
 
         lenient().when(paymentPort.save(any(Payment.class))).then(r -> {
@@ -173,7 +173,7 @@ public class ReservationSeatUseCaseUnitTest {
     @Test
     @DisplayName("좌석이 없으면 예외가 발생한다")
     public void noSeat() {
-        when(concertSeatPort.getWithLock(any(Long.class))).thenThrow(new NoSuchElementException("No value present"));
+        when(concertSeatPort.get(any(Long.class))).thenThrow(new NoSuchElementException("No value present"));
 
         NoSuchElementException e = assertThrows(
                 NoSuchElementException.class, () -> reservationSeatUseCase.execute(

@@ -19,16 +19,21 @@ public interface ReservationJpaRepository extends JpaRepository<Reservation, Lon
     @Query("SELECT r FROM Reservation r WHERE r.id = :id")
     Optional<Reservation> findByIdWithLock(Long id);
 
-    @Query("SELECT r.concertSeatId FROM Reservation r WHERE r.concertSeatId in :concertSeatIds and r.status in :statuses")
     List<Long> findAllConcertSeatIdsByConcertSeatIdInAndStatusIn(Collection<Long> concertSeatIds, Collection<ReservationStatus> statuses);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT r.concertSeatId FROM Reservation r WHERE r.concertSeatId in :concertSeatIds and r.status in :statuses")
     List<Long> findAllConcertSeatIdsByConcertSeatIdInAndStatusInWithLock(Collection<Long> concertSeatIds, Collection<ReservationStatus> statuses);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<Reservation> findAllByStatusIn(Collection<ReservationStatus> statuses);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM Reservation r WHERE r.status in :statuses")
+    List<Reservation> findAllByStatusInWithLock(Collection<ReservationStatus> statuses);
+
     List<Reservation> findAllByConcertSeatIdInAndStatusIn(Collection<Long> concertSeatIds, Collection<ReservationStatus> statuses);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM Reservation r WHERE r.concertSeatId in :concertSeatIds and r.status in :statuses")
+    List<Reservation> findAllByConcertSeatIdInAndStatusInWithLock(Collection<Long> concertSeatIds, Collection<ReservationStatus> statuses);
 }

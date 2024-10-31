@@ -38,7 +38,7 @@ public class QueueEnrollUseCaseUnitTest {
     @Test
     @DisplayName("대기열에 등록된 이용자 중 가장 빠른 30명을 서비스에 진입시킨다")
     public void enrollTokens() {
-        when(serviceEntryPort.findEnrollableAllTokenIdByTop30WithLock()).thenReturn(List.of(11L,12L,13L,14L,15L,16L));
+        when(serviceEntryPort.findEnrollableAllTokenIdByTop30()).thenReturn(List.of(11L,12L,13L,14L,15L,16L));
         doAnswer(i -> {
             enrolled.addAll(i.getArgument(0));
             return null;
