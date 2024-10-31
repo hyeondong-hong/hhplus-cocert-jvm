@@ -13,3 +13,12 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
     show-sql: false
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: ""
+  timeout: 3000
+redisson:
+  address: redis://${redis.host}:${redis.port}/0
+  password: ${redis.password}
+  timeout: ${redis.timeout}
