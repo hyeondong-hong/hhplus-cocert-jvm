@@ -6,10 +6,9 @@ import io.hhplus.concert.app.concert.domain.enm.ReservationStatus;
 import io.hhplus.concert.app.concert.port.ConcertSeatPort;
 import io.hhplus.concert.app.concert.port.ReservationPort;
 import io.hhplus.concert.app.payment.domain.Payment;
-import io.hhplus.concert.app.payment.domain.enm.PaymentStatus;
 import io.hhplus.concert.app.payment.port.PaymentPort;
-import io.hhplus.concert.app.user.domain.PointTransaction;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,11 +18,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class ReleaseReservationsUseCase {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ConcertSeatPort concertSeatPort;
     private final ReservationPort reservationPort;
@@ -55,7 +53,7 @@ public class ReleaseReservationsUseCase {
             return new Output();
         }
 
-        payments.forEach(Payment::setCancelled);
+        payments.forEach(Payment::cancel);
 
         Set<Long> paymentIdSet = payments.stream().map(Payment::getId).collect(Collectors.toUnmodifiableSet());
         List<Reservation> reservations = originReservations.stream().filter(
@@ -67,9 +65,9 @@ public class ReleaseReservationsUseCase {
                 reservations.stream().map(Reservation::getConcertSeatId).toList());
         seats.forEach(ConcertSeat::open);
 
-        logger.info("Schedule: Released Payments: {}", payments.stream().map(Payment::getId).toList());
-        logger.info("Schedule: Released Reservations: {}", reservations.stream().map(Reservation::getId).toList());
-        logger.info("Schedule: Released Concert Seats: {}", seats.stream().map(ConcertSeat::getId).toList());
+        log.info("Schedule: Released Payments: {}", payments.stream().map(Payment::getId).toList());
+        log.info("Schedule: Released Reservations: {}", reservations.stream().map(Reservation::getId).toList());
+        log.info("Schedule: Released Concert Seats: {}", seats.stream().map(ConcertSeat::getId).toList());
 
         concertSeatPort.saveAll(seats);
         paymentPort.saveAll(payments);

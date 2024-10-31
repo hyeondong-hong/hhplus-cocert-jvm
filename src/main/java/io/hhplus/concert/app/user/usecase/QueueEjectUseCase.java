@@ -3,6 +3,7 @@ package io.hhplus.concert.app.user.usecase;
 import io.hhplus.concert.app.user.port.ServiceEntryPort;
 import io.hhplus.concert.app.user.port.TokenPort;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -11,11 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Stream;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class QueueEjectUseCase {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ServiceEntryPort serviceEntryPort;
     private final TokenPort tokenPort;
@@ -39,7 +39,7 @@ public class QueueEjectUseCase {
                 expiredEnrolls.stream()
         ).distinct().toList();
 
-        logger.info("Schedule: Ejected: {}", ejectTargets);
+        log.info("Schedule: Ejected: {}", ejectTargets);
 
         // 대상 이용자를 토큰 ID 기준으로 방출
         serviceEntryPort.deleteAllByTokenIds(ejectTargets);

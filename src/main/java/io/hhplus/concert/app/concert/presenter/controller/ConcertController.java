@@ -12,6 +12,7 @@ import io.hhplus.concert.app.payment.usecase.PurchaseReservationUseCase;
 import io.hhplus.concert.app.payment.usecase.dto.PurchaseResult;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -22,12 +23,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/1.0/concerts")
 public class ConcertController {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final PurchaseReservationUseCase purchaseReservationUseCase;
     private final ReservationSeatUseCase reservationSeatUseCase;
