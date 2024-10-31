@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
-import org.springframework.security.authentication.BadCredentialsException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -47,20 +46,20 @@ public class Payment {
     @Column
     private LocalDateTime paidAt;
 
-    public void setPending() {
+    public void pending() {
         this.status = PaymentStatus.PENDING;
     }
 
-    public void setPaid() {
+    public void pay() {
         this.status = PaymentStatus.PAID;
         this.paidAt = LocalDateTime.now();
     }
 
-    public void setRefunded() {
+    public void refund() {
         this.status = PaymentStatus.REFUNDED;
     }
 
-    public void setCancelled() {
+    public void cancel() {
         this.status = PaymentStatus.CANCELLED;
     }
 

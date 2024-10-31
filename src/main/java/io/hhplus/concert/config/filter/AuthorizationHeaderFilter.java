@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,23 +16,26 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class AuthorizationHeaderFilter extends BasicAuthenticationFilter {
 
     private final CheckTokenEnrolledUseCase checkTokenEnrolledUseCase;
 
     public AuthorizationHeaderFilter(
             AuthenticationManager authenticationManager,
-            CheckTokenEnrolledUseCase checkTokenEnrolledUseCase) {
+            CheckTokenEnrolledUseCase checkTokenEnrolledUseCase
+    ) {
 
         super(authenticationManager);
         this.checkTokenEnrolledUseCase = checkTokenEnrolledUseCase;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain chain)
-            throws IOException, ServletException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain
+    ) throws IOException, ServletException {
 
         if (isSwagger(request, response, chain)) {
             return;
@@ -69,7 +73,7 @@ public class AuthorizationHeaderFilter extends BasicAuthenticationFilter {
             return;
         }
 
-        logger.debug("Filter passed, proceeding to controller.");
+        log.debug("Filter passed, proceeding to controller.");
 
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(authorizationHeader, null, null);
@@ -85,7 +89,7 @@ public class AuthorizationHeaderFilter extends BasicAuthenticationFilter {
             String message
     ) throws IOException {
 
-        logger.debug("Setting response status to: " + status);
+        log.debug("Setting response status to: {}", status);
 
         response.setStatus(status);
         response.setContentType("application/json");
@@ -102,10 +106,12 @@ public class AuthorizationHeaderFilter extends BasicAuthenticationFilter {
         response.getWriter().close();
     }
 
-    private boolean isSwagger(HttpServletRequest request,
-                              HttpServletResponse response,
-                              FilterChain chain
+    private boolean isSwagger(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain
     ) throws IOException, ServletException {
+
         String[] swaggerPaths = {
                 "^/v3/api-docs.*$", "^/swagger-ui.*$", "^/swagger-resources/.*$", "^/webjars/.*$"
         };

@@ -3,6 +3,7 @@ package io.hhplus.concert.app.concert.port;
 import io.hhplus.concert.app.concert.domain.ConcertSchedule;
 import io.hhplus.concert.app.concert.port.jpa.ConcertScheduleJpaRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -12,11 +13,10 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @AllArgsConstructor
 @Repository
 public class ConcertSchedulePort {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ConcertScheduleJpaRepository jpaRepository;
 
@@ -26,7 +26,7 @@ public class ConcertSchedulePort {
 
     public void existsOrThrow(Long id) {
         if (!existsById(id)) {
-            logger.warn("유효하지 않은 콘서트 스케줄에 접근: concertScheduleId = {}", id);
+            log.warn("유효하지 않은 콘서트 스케줄에 접근: concertScheduleId = {}", id);
             throw new IllegalArgumentException("Concert Schedule not found: " + id);
         }
     }

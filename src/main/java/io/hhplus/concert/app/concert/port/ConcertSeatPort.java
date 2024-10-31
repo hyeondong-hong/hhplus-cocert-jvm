@@ -3,6 +3,7 @@ package io.hhplus.concert.app.concert.port;
 import io.hhplus.concert.app.concert.domain.ConcertSeat;
 import io.hhplus.concert.app.concert.port.jpa.ConcertSeatJpaRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -10,11 +11,10 @@ import org.springframework.stereotype.Repository;
 import java.util.Collection;
 import java.util.List;
 
+@Slf4j
 @AllArgsConstructor
 @Repository
 public class ConcertSeatPort {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ConcertSeatJpaRepository jpaRepository;
 
@@ -24,7 +24,7 @@ public class ConcertSeatPort {
 
     public void existsOrThrow(Long id) {
         if (!existsById(id)) {
-            logger.warn("유효하지 않은 콘서트 좌석에 접근: concertSeatId = {}", id);
+            log.warn("유효하지 않은 콘서트 좌석에 접근: concertSeatId = {}", id);
             throw new IllegalArgumentException("Concert Seat not found: " + id);
         }
     }

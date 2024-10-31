@@ -2,6 +2,7 @@ package io.hhplus.concert.config;
 
 import io.hhplus.concert.config.dto.ErrorResult;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -18,10 +19,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.lang.reflect.Method;
 import java.util.NoSuchElementException;
 
+@Slf4j
 @ControllerAdvice
 class RestControllerAdvice extends ResponseEntityExceptionHandler {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ExceptionHandlerMethodResolver resolver;
 
@@ -85,7 +85,7 @@ class RestControllerAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResult> handleGenericException(Exception e, WebRequest request) {
-        logger.error("Unhandled exception:", e);
+        log.error("Unhandled exception:", e);
         return createErrorResponse(e, request, HttpStatus.INTERNAL_SERVER_ERROR, "시스템 오류");
     }
 
@@ -102,6 +102,6 @@ class RestControllerAdvice extends ResponseEntityExceptionHandler {
 
     private void logRequestDetails(Exception e, WebRequest request) {
         String description = request.getDescription(true);
-        logger.debug("Exception occurred: {}, Request Details: {}", e.getMessage(), description);
+        log.debug("Exception occurred: {}, Request Details: {}", e.getMessage(), description);
     }
 }

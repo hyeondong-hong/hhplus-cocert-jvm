@@ -7,6 +7,7 @@ import io.hhplus.concert.app.user.port.TokenPort;
 import io.hhplus.concert.app.user.port.UserPointPort;
 import io.hhplus.concert.app.user.port.UserPort;
 import io.hhplus.concert.app.user.usecase.dto.TokenResult;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,11 +17,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class IssueTokenUseCase {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final TokenPort tokenPort;
     private final UserPort userPort;
@@ -41,7 +41,7 @@ public class IssueTokenUseCase {
         LocalDateTime currentDateTime = LocalDateTime.now();
 
         if (!userPort.isExists(userId)) {
-            logger.info("User created: userId = {}", userId);
+            log.info("User created: userId = {}", userId);
             userPort.save(
                     User.builder()
                             .id(userId)
@@ -66,7 +66,7 @@ public class IssueTokenUseCase {
                         .expiresAt(currentDateTime.plusDays(1L))
                         .build()
         );
-        logger.info("Token created: uuid = {}", token.getKeyUuid());
+        log.info("Token created: uuid = {}", token.getKeyUuid());
 
         return new Output(new TokenResult(token.getKeyUuid()));
     }

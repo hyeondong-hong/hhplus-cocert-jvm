@@ -5,6 +5,7 @@ import io.hhplus.concert.app.user.domain.Token;
 import io.hhplus.concert.app.user.port.ServiceEntryPort;
 import io.hhplus.concert.app.user.port.TokenPort;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,11 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class CheckTokenEnrolledUseCase {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ServiceEntryPort serviceEntryPort;
     private final TokenPort tokenPort;
@@ -37,18 +37,18 @@ public class CheckTokenEnrolledUseCase {
         Token token = tokenPort.getByKey(input.keyUuid());
 
         if (token.isExpired()) {
-            logger.debug("Token expired: uuid = {}", token.getKeyUuid());
+            log.debug("Token expired: uuid = {}", token.getKeyUuid());
             throw new BadCredentialsException("Token Expired");
         }
 
         ServiceEntry serviceEntry;
         if (serviceEntryPort.existsByTokenId(token.getId())) {
             // 등록된 토큰인 경우 불러오기
-            logger.debug("등록된 토큰: token = {}", token.getKeyUuid());
+            log.debug("등록된 토큰: token = {}", token.getKeyUuid());
             serviceEntry = serviceEntryPort.getByTokenId(token.getId());
         } else {
             // 미등록 토큰인 경우 등록
-            logger.debug("미등록 토큰: token = {}", token.getKeyUuid());
+            log.debug("미등록 토큰: token = {}", token.getKeyUuid());
             serviceEntry = serviceEntryPort.save(
                     ServiceEntry.builder()
                             .tokenId(token.getId())
@@ -62,7 +62,7 @@ public class CheckTokenEnrolledUseCase {
 
         if (!serviceEntry.isEnrolled()) {
             // 미진입 상태 -> 403
-            logger.debug("진입시도 토큰: {}", token.getKeyUuid());
+            log.debug("진입시도 토큰: {}", token.getKeyUuid());
             isAuthenticated = false;
             rank = serviceEntryPort.getEntryRankByTokenId(token.getId());
         }

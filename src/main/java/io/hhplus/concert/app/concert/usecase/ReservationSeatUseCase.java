@@ -14,6 +14,7 @@ import io.hhplus.concert.app.payment.port.PaymentPort;
 import io.hhplus.concert.app.user.domain.Token;
 import io.hhplus.concert.app.user.port.TokenPort;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class ReservationSeatUseCase {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ConcertPort concertPort;
     private final ConcertSchedulePort concertSchedulePort;
@@ -56,7 +56,7 @@ public class ReservationSeatUseCase {
 
         ConcertSeat seat = concertSeatPort.getWithLock(input.concertSeatId());
         if (seat.isClosed()) {
-            logger.info("예약된 좌석에 예약 시도: uuid = {}, concertSeatId = {}", token.getKeyUuid(), seat.getId());
+            log.info("예약된 좌석에 예약 시도: uuid = {}, concertSeatId = {}", token.getKeyUuid(), seat.getId());
             throw new IllegalStateException("이미 예약된 좌석: " + seat.getId());
         }
 

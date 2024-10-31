@@ -5,6 +5,7 @@ import io.hhplus.concert.app.concert.port.ConcertPort;
 import io.hhplus.concert.app.concert.port.ConcertSchedulePort;
 import io.hhplus.concert.app.concert.usecase.dto.ConcertScheduleResult;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -13,11 +14,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class SearchSchedulesUseCase {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ConcertPort concertPort;
     private final ConcertSchedulePort concertSchedulePort;

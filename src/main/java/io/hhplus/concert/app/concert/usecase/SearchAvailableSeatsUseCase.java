@@ -6,6 +6,7 @@ import io.hhplus.concert.app.concert.port.ConcertSchedulePort;
 import io.hhplus.concert.app.concert.port.ConcertSeatPort;
 import io.hhplus.concert.app.concert.usecase.dto.ConcertSeatResult;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -14,11 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class SearchAvailableSeatsUseCase {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ConcertPort concertPort;
     private final ConcertSchedulePort concertSchedulePort;
@@ -35,8 +35,14 @@ public class SearchAvailableSeatsUseCase {
 
     @Transactional
     public Output execute(Input input) {
-        concertPort.existsOrThrow(input.concertId());
-        concertSchedulePort.existsOrThrow(input.concertScheduleId());
+
+        if (!concertPort.existsById(input.concertId())) {
+            throw new NoSuchElementException("Concert not found: " + input.concertId());
+        }
+
+        if (!concertSchedulePort.existsById(input.concertScheduleId())) {
+            throw new NoSuchElementException("Concert Schedule not found: " + input.concertScheduleId());
+        }
 
         // ** 원래는 낙관락 사용해야 하는 부분.
         List<ConcertSeat> seats = concertSeatPort.getAllByConcertScheduleIdWithLock(input.concertScheduleId());

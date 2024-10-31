@@ -15,19 +15,17 @@ import io.hhplus.concert.app.user.domain.enm.PointTransactionType;
 import io.hhplus.concert.app.user.port.PointTransactionPort;
 import io.hhplus.concert.app.user.port.UserPointPort;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class CompleteChargeUserPointUseCase {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final HangHaePgPort hangHaePgPort;
 
@@ -50,11 +48,11 @@ public class CompleteChargeUserPointUseCase {
         Payment payment = paymentPort.getByPaymentKeyWithLock(input.paymentKey());
         switch (payment.getStatus()) {
             case PAID -> {
-                logger.debug("이미 완료된 결제: paymentId = {}", payment.getId());
+                log.debug("이미 완료된 결제: paymentId = {}", payment.getId());
                 throw new IllegalArgumentException("이미 완료된 결제");
             }
             case CANCELLED -> {
-                logger.debug("취소된 결제: paymentId = {}", payment.getId());
+                log.debug("취소된 결제: paymentId = {}", payment.getId());
                 throw new IllegalArgumentException("취소된 결제");
             }
         }
@@ -62,10 +60,10 @@ public class CompleteChargeUserPointUseCase {
 
         if (payment.isExpired()) {
             pointTransaction.setCancelled();
-            payment.setCancelled();
+            payment.cancel();
             pointTransactionPort.save(pointTransaction);
             paymentPort.save(payment);
-            logger.debug("결제 기한 만료: paymentId = {}", payment.getId());
+            log.debug("결제 기한 만료: paymentId = {}", payment.getId());
             throw new IllegalArgumentException("결제 기한 만료");
         }
 
@@ -80,19 +78,19 @@ public class CompleteChargeUserPointUseCase {
         if (result != PgResultType.OK) {
             switch (result) {
                 case INVALID -> {
-                    logger.debug("PG사 오류: 사용 불가한 결제 정보: paymentKey = {}", payment.getPaymentKey());
+                    log.debug("PG사 오류: 사용 불가한 결제 정보: paymentKey = {}", payment.getPaymentKey());
                     throw new IllegalArgumentException("사용 불가한 결제 정보");
                 }
                 case ALREADY_PURCHASED -> {
-                    logger.debug("PG사 오류: 이미 완료된 결제: paymentKey = {}", payment.getPaymentKey());
+                    log.debug("PG사 오류: 이미 완료된 결제: paymentKey = {}", payment.getPaymentKey());
                     throw new IllegalArgumentException("이미 완료된 결제");
                 }
                 case REJECTED_PAYMENT -> {
-                    logger.debug("PG사 오류: 승인 거부: paymentKey = {}", payment.getPaymentKey());
+                    log.debug("PG사 오류: 승인 거부: paymentKey = {}", payment.getPaymentKey());
                     throw new AccessDeniedException("승인 거부");
                 }
                 default -> {
-                    logger.debug("PG사 오류: 결제 시스템 오류: paymentKey = {}", payment.getPaymentKey());
+                    log.debug("PG사 오류: 결제 시스템 오류: paymentKey = {}", payment.getPaymentKey());
                     throw new RuntimeException("결제 시스템 오류");
                 }
             }
@@ -100,7 +98,7 @@ public class CompleteChargeUserPointUseCase {
 
         userPoint.add(pointTransaction.getAmount());
         pointTransaction.setCompleted(userPoint.getRemains());
-        payment.setPaid();
+        payment.pay();
 
         pointTransaction = pointTransactionPort.save(pointTransaction);
         userPoint = userPointPort.save(userPoint);
