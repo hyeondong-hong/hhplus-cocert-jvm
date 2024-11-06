@@ -5,6 +5,7 @@
 * [Sequence Diagram](./docs/sequence-diagram.md)
 * [Flowchart](./docs/flowchart.md)
 * [ERD](./docs/erd.md)
+* **[동시성 제어 보고서](./docs/concurrency-control-report.md)**
 
 ## 패키지 구조 - 클린아키텍처
 ```
