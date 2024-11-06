@@ -87,8 +87,8 @@ public class ReleasePointTransactionsUseCaseUnitTest {
     @Test
     @DisplayName("대기중인 포인트 거래내역이 없으면 다음 스텝으로 넘어가지 않아야 한다")
     public void noAvailablePendingPointTransactions() {
-        when(pointTransactionPort.getAllByStatusesWithLock(any(List.class))).thenReturn(List.of());
-        lenient().when(paymentPort.getExpiredAllByIdsWithLock(any(List.class))).thenThrow(AssertionError.class);
+        when(pointTransactionPort.getAllByStatuses(any(List.class))).thenReturn(List.of());
+        lenient().when(paymentPort.getExpiredAllByIds(any(List.class))).thenThrow(AssertionError.class);
 
         assertDoesNotThrow(
                 () -> releasePointTransactionsUseCase.execute(new ReleasePointTransactionsUseCase.Input())
@@ -98,8 +98,8 @@ public class ReleasePointTransactionsUseCaseUnitTest {
     @Test
     @DisplayName("대기중인 포인트 거래내역이 있지만 만료된 결제정보가 존재하지 않으면 다음 스텝으로 넘어가지 않아야 한다")
     public void noAvailableExpiredPayment() {
-        when(pointTransactionPort.getAllByStatusesWithLock(any(List.class))).then(r -> selectedPointTransactions);
-        when(paymentPort.getExpiredAllByIdsWithLock(any(List.class))).thenReturn(List.of());
+        when(pointTransactionPort.getAllByStatuses(any(List.class))).then(r -> selectedPointTransactions);
+        when(paymentPort.getExpiredAllByIds(any(List.class))).thenReturn(List.of());
         lenient().when(paymentPort.saveAll(any(List.class))).thenThrow(AssertionError.class);
 
         assertDoesNotThrow(
@@ -110,8 +110,8 @@ public class ReleasePointTransactionsUseCaseUnitTest {
     @Test
     @DisplayName("만료된 결제 정보가 존재하면 해당 결제 정보에 연결된 포인트 거래내역만 취소 처리 한다.")
     public void cancelExpired() {
-        when(pointTransactionPort.getAllByStatusesWithLock(any(List.class))).then(r -> selectedPointTransactions);
-        when(paymentPort.getExpiredAllByIdsWithLock(any(List.class))).then(r -> selectedPayments);
+        when(pointTransactionPort.getAllByStatuses(any(List.class))).then(r -> selectedPointTransactions);
+        when(paymentPort.getExpiredAllByIds(any(List.class))).then(r -> selectedPayments);
         when(pointTransactionPort.saveAll(any(List.class))).then(r -> {
             List<PointTransaction> result = r.getArgument(0);
             savedPointTransactions.addAll(result);

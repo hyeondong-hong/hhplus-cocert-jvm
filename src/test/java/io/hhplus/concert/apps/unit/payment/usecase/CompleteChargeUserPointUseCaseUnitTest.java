@@ -99,11 +99,11 @@ public class CompleteChargeUserPointUseCaseUnitTest {
                 .paymentId(payment.getId())
                 .build();
 
-        lenient().when(paymentPort.getByPaymentKeyWithLock(eq(paymentKey))).thenReturn(payment);
+        lenient().when(paymentPort.getByPaymentKey(eq(paymentKey))).thenReturn(payment);
         lenient().when(hangHaePgPort.purchase(eq(userId), eq(paymentKey), any(BigDecimal.class))).thenReturn(PgResultType.OK);
         lenient().when(pointTransactionPort.getByPaymentId(eq(payment.getId()))).thenReturn(pointTransaction);
         lenient().when(pointTransactionPort.save(eq(pointTransaction))).thenReturn(pointTransaction);
-        lenient().when(userPointPort.getByUserIdWithLock(eq(userId))).thenReturn(userPoint);
+        lenient().when(userPointPort.getByUserId(eq(userId))).thenReturn(userPoint);
         lenient().when(userPointPort.save(eq(userPoint))).thenReturn(userPoint);
         lenient().when(paymentPort.save(eq(payment))).thenReturn(payment);
         lenient().when(paymentTransactionPort.save(any(PaymentTransaction.class))).then(r -> {
@@ -129,6 +129,7 @@ public class CompleteChargeUserPointUseCaseUnitTest {
                 IllegalArgumentException.class,
                 () -> completeChargeUserPointUseCase.execute(
                         new CompleteChargeUserPointUseCase.Input(
+                                "99543f87-9280-45f8-9a56-84a3a3d1312b",
                                 userId,
                                 paymentKey
                         )
@@ -147,6 +148,7 @@ public class CompleteChargeUserPointUseCaseUnitTest {
                 IllegalArgumentException.class,
                 () -> completeChargeUserPointUseCase.execute(
                         new CompleteChargeUserPointUseCase.Input(
+                                "99543f87-9280-45f8-9a56-84a3a3d1312b",
                                 userId,
                                 paymentKey
                         )
@@ -167,12 +169,13 @@ public class CompleteChargeUserPointUseCaseUnitTest {
                 .dueAt(LocalDateTime.now().minusMinutes(5))  // expired
                 .price(payment.getPrice())
                 .build();
-        when(paymentPort.getByPaymentKeyWithLock(eq(paymentKey))).thenReturn(expiredPayment);
+        when(paymentPort.getByPaymentKey(eq(paymentKey))).thenReturn(expiredPayment);
 
         IllegalArgumentException e = assertThrows(
                 IllegalArgumentException.class,
                 () -> completeChargeUserPointUseCase.execute(
                         new CompleteChargeUserPointUseCase.Input(
+                                "99543f87-9280-45f8-9a56-84a3a3d1312b",
                                 userId,
                                 paymentKey
                         )
@@ -191,6 +194,7 @@ public class CompleteChargeUserPointUseCaseUnitTest {
                 AccessDeniedException.class,
                 () -> completeChargeUserPointUseCase.execute(
                         new CompleteChargeUserPointUseCase.Input(
+                                "99543f87-9280-45f8-9a56-84a3a3d1312b",
                                 userId,
                                 paymentKey
                         )
@@ -205,6 +209,7 @@ public class CompleteChargeUserPointUseCaseUnitTest {
     public void completePayment() {
         CompleteChargeUserPointUseCase.Output output = completeChargeUserPointUseCase.execute(
                 new CompleteChargeUserPointUseCase.Input(
+                        "99543f87-9280-45f8-9a56-84a3a3d1312b",
                         userId,
                         paymentKey
                 )

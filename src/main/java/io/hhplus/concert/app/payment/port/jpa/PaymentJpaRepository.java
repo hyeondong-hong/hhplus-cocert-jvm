@@ -15,19 +15,25 @@ import java.util.Optional;
 @Repository
 public interface PaymentJpaRepository extends JpaRepository<Payment, Long> {
 
-    Optional<Payment> findByPaymentKey(String paymentKey);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Payment p WHERE p.id = :id")
     Optional<Payment> findByIdWithLock(Long id);
+
+    Optional<Payment> findByPaymentKey(String paymentKey);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Payment p WHERE p.paymentKey = :paymentKey")
     Optional<Payment> findByPaymentKeyWithLock(String paymentKey);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<Payment> findAllByIdInAndDueAtLessThan(Collection<Long> ids, LocalDateTime baseDateTime);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Payment p WHERE p.id in :ids and p.dueAt < :baseDateTime")
+    List<Payment> findAllByIdInAndDueAtLessThanWithLock(Collection<Long> ids, LocalDateTime baseDateTime);
+
     List<Payment> findAllByIdInAndDueAtGreaterThanEqual(Collection<Long> ids, LocalDateTime baseDateTime);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Payment p WHERE p.id in :ids and p.dueAt >= :baseDateTime")
+    List<Payment> findAllByIdInAndDueAtGreaterThanEqualWithLock(Collection<Long> ids, LocalDateTime baseDateTime);
 }

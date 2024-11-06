@@ -14,6 +14,7 @@ import io.hhplus.concert.app.user.domain.UserPoint;
 import io.hhplus.concert.app.user.domain.enm.PointTransactionType;
 import io.hhplus.concert.app.user.port.PointTransactionPort;
 import io.hhplus.concert.app.user.port.UserPointPort;
+import io.hhplus.concert.config.aop.annotation.RedisLock;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
@@ -35,6 +36,7 @@ public class CompleteChargeUserPointUseCase {
     private final PointTransactionPort pointTransactionPort;
 
     public record Input(
+            String keyUuid,
             Long userId,
             String paymentKey
     ) { }
@@ -43,9 +45,9 @@ public class CompleteChargeUserPointUseCase {
             PointChangeResult pointChangeResult
     ) { }
 
-    @Transactional
+    @RedisLock(key = "Point", dtoName = "input", fields = {"keyUuid"})
     public Output execute(Input input) {
-        Payment payment = paymentPort.getByPaymentKeyWithLock(input.paymentKey());
+        Payment payment = paymentPort.getByPaymentKey(input.paymentKey());
         switch (payment.getStatus()) {
             case PAID -> {
                 log.debug("이미 완료된 결제: paymentId = {}", payment.getId());
@@ -67,7 +69,7 @@ public class CompleteChargeUserPointUseCase {
             throw new IllegalArgumentException("결제 기한 만료");
         }
 
-        UserPoint userPoint = userPointPort.getByUserIdWithLock(input.userId());
+        UserPoint userPoint = userPointPort.getByUserId(input.userId());
 
         PgResultType result = hangHaePgPort.purchase(
                 payment.getUserId(),

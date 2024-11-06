@@ -63,7 +63,7 @@ public class PendingChargeUserPointUseCaseUnitTest {
     @Test
     @DisplayName("포인트 충전을 요청하면 포인트 거래 정보가 생성된다")
     public void createPointTransaction() {
-        when(userPointPort.getByUserIdWithLock(eq(userPoint.getUserId()))).thenReturn(userPoint);
+        when(userPointPort.getByUserId(eq(userPoint.getUserId()))).thenReturn(userPoint);
         when(paymentPort.save(any(Payment.class))).then(r -> {
             Payment origin = r.getArgument(0);
             return createdPayment = Payment.builder()
@@ -93,6 +93,7 @@ public class PendingChargeUserPointUseCaseUnitTest {
 
         pendingChargeUserPointUseCase.execute(
                 new PendingChargeUserPointUseCase.Input(
+                        "99543f87-9280-45f8-9a56-84a3a3d1312b",
                         userId,
                         BigDecimal.valueOf(5000)
                 )

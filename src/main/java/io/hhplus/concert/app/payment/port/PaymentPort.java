@@ -54,11 +54,19 @@ public class PaymentPort {
         jpaRepository.delete(payment);
     }
 
-    public List<Payment> getExpiredAllByIdsWithLock(List<Long> ids) {
+    public List<Payment> getExpiredAllByIds(List<Long> ids) {
         return jpaRepository.findAllByIdInAndDueAtLessThan(ids, LocalDateTime.now());
     }
 
-    public List<Payment> getAvailableAllByIdsWithLock(List<Long> ids) {
+    public List<Payment> getExpiredAllByIdsWithLock(List<Long> ids) {
+        return jpaRepository.findAllByIdInAndDueAtLessThanWithLock(ids, LocalDateTime.now());
+    }
+
+    public List<Payment> getAvailableAllByIds(List<Long> ids) {
         return jpaRepository.findAllByIdInAndDueAtGreaterThanEqual(ids, LocalDateTime.now());
+    }
+
+    public List<Payment> getAvailableAllByIdsWithLock(List<Long> ids) {
+        return jpaRepository.findAllByIdInAndDueAtGreaterThanEqualWithLock(ids, LocalDateTime.now());
     }
 }

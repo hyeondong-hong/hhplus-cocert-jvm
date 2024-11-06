@@ -35,9 +35,7 @@ public class ReleaseReservationsUseCase {
 
     @Transactional
     public Output execute(Input input) {
-        // reservation -> payment 순서대로 비관락
-        // 다른 트랜잭션 블록에서 payment -> reservation 순서로 처리 시 데드락에 주의
-        List<Reservation> originReservations = reservationPort.getAllByStatusesWithLock(
+        List<Reservation> originReservations = reservationPort.getAllByStatuses(
                 List.of(ReservationStatus.PENDING)
         );
 
@@ -45,7 +43,7 @@ public class ReleaseReservationsUseCase {
             return new Output();
         }
 
-        List<Payment> payments = paymentPort.getExpiredAllByIdsWithLock(
+        List<Payment> payments = paymentPort.getExpiredAllByIds(
                 originReservations.stream().map(Reservation::getPaymentId).toList()
         );
 
@@ -61,7 +59,7 @@ public class ReleaseReservationsUseCase {
 
         reservations.forEach(Reservation::setCancelled);
 
-        List<ConcertSeat> seats = concertSeatPort.getAllByIdsWithLock(
+        List<ConcertSeat> seats = concertSeatPort.getAllByIds(
                 reservations.stream().map(Reservation::getConcertSeatId).toList());
         seats.forEach(ConcertSeat::open);
 

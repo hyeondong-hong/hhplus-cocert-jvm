@@ -27,7 +27,7 @@ public class QueueEnrollUseCase {
     public Output execute(Input input) {
 
         // 등록 가능한 진입 이용자 토큰 ID (30명)
-        List<Long> enrollableTokenIds = serviceEntryPort.findEnrollableAllTokenIdByTop30WithLock();
+        List<Long> enrollableTokenIds = serviceEntryPort.findEnrollableAllTokenIdByTop30();
 
         log.debug("Schedule: Enrolled: {}", enrollableTokenIds);
 

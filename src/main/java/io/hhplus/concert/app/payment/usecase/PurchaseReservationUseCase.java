@@ -19,10 +19,9 @@ import io.hhplus.concert.app.user.domain.enm.PointTransactionStatus;
 import io.hhplus.concert.app.user.domain.enm.PointTransactionType;
 import io.hhplus.concert.app.user.port.PointTransactionPort;
 import io.hhplus.concert.app.user.port.UserPointPort;
+import io.hhplus.concert.config.aop.annotation.RedisLock;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +43,7 @@ public class PurchaseReservationUseCase {
     private final PointTransactionPort pointTransactionPort;
 
     public record Input(
+            String keyUuid,
             Long concertId,
             Long concertScheduleId,
             Long concertSeatId,
@@ -56,17 +56,15 @@ public class PurchaseReservationUseCase {
             PurchaseResult purchaseResult
     ) { }
 
-    @Transactional
+    @RedisLock(key = "Point", dtoName = "input", fields = {"keyUuid"})
     public Output execute(Input input) {
 
         concertPort.existsOrThrow(input.concertId());
         concertSchedulePort.existsOrThrow(input.concertScheduleId());
         concertSeatPort.existsOrThrow(input.concertSeatId());
 
-        // reservation -> payment 순서대로 비관락
-        // 다른 트랜잭션 블록에서 payment -> reservation 순서로 처리 시 데드락에 주의
-        Reservation reservation = reservationPort.getWithLock(input.reservationId());
-        Payment payment = paymentPort.getByPaymentKeyWithLock(input.paymentKey());
+        Reservation reservation = reservationPort.get(input.reservationId());
+        Payment payment = paymentPort.getByPaymentKey(input.paymentKey());
         if (!Objects.equals(reservation.getPaymentId(), payment.getId())) {
             log.warn("유효하지 않은 결제 키 요청: {} != {}({})",
                     reservation.getPaymentId(), payment.getId(), payment.getPaymentKey());
@@ -84,8 +82,7 @@ public class PurchaseReservationUseCase {
             }
         }
 
-        // 비관락을 걸어야 동시에 접근 시 보유 포인트에 대한 정상적인 차감이 보장됨
-        UserPoint userPoint = userPointPort.getByUserIdWithLock(reservation.getUserId());
+        UserPoint userPoint = userPointPort.getByUserId(reservation.getUserId());
         if (!userPoint.isEnough(payment.getPrice())) {
             log.debug("잔여 포인트 부족: userId = {}, remains = {} < amount = {}", userPoint.getUserId(), userPoint.getRemains(), payment.getPrice());
             throw new IllegalStateException("잔여 포인트 부족: (remains = " + userPoint.getRemains() + " < amount = " + payment.getPrice() + ")");
