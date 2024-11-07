@@ -1,5 +1,6 @@
 package io.hhplus.concert.app.user.usecase;
 
+import io.hhplus.concert.app.user.port.QueueRedisPort;
 import io.hhplus.concert.app.user.port.ServiceEntryPort;
 import io.hhplus.concert.app.user.port.TokenPort;
 import lombok.AllArgsConstructor;
@@ -15,8 +16,10 @@ import java.util.stream.Stream;
 @Service
 public class QueueEjectUseCase {
 
-    private final ServiceEntryPort serviceEntryPort;
-    private final TokenPort tokenPort;
+//    private final ServiceEntryPort serviceEntryPort;
+//    private final TokenPort tokenPort;
+
+    private final QueueRedisPort queueRedisPort;
 
     public record Input(
     ) { }
@@ -24,23 +27,26 @@ public class QueueEjectUseCase {
     public record Output(
     ) { }
 
-    @Transactional
+//    @Transactional
     public Output execute(Input input) {
-        // 토큰이 만료된 이용자 토큰 ID
-        List<Long> expiredTokens = tokenPort.findAllIdsExpired();
 
-        // 등록 후 10분이 지난 이용자 토큰 ID
-        List<Long> expiredEnrolls = serviceEntryPort.findAllTokenIdExpired();
+        queueRedisPort.ejects();
 
-        List<Long> ejectTargets = Stream.concat(
-                expiredTokens.stream(),
-                expiredEnrolls.stream()
-        ).distinct().toList();
-
-        log.info("Schedule: Ejected: {}", ejectTargets);
-
-        // 대상 이용자를 토큰 ID 기준으로 방출
-        serviceEntryPort.deleteAllByTokenIds(ejectTargets);
+//        // 토큰이 만료된 이용자 토큰 ID
+//        List<Long> expiredTokens = tokenPort.findAllIdsExpired();
+//
+//        // 등록 후 10분이 지난 이용자 토큰 ID
+//        List<Long> expiredEnrolls = serviceEntryPort.findAllTokenIdExpired();
+//
+//        List<Long> ejectTargets = Stream.concat(
+//                expiredTokens.stream(),
+//                expiredEnrolls.stream()
+//        ).distinct().toList();
+//
+//        log.info("Schedule: Ejected: {}", ejectTargets);
+//
+//        // 대상 이용자를 토큰 ID 기준으로 방출
+//        serviceEntryPort.deleteAllByTokenIds(ejectTargets);
 
         return new Output();
     }
