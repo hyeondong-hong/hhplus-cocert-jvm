@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hhplus.concert.app.concert.domain.Concert;
 import io.hhplus.concert.app.concert.domain.ConcertSchedule;
-import io.hhplus.concert.app.concert.port.cache.CacheRepository;
+import io.hhplus.concert.app.concert.port.cache.CacheListRepository;
 import io.hhplus.concert.config.dto.SerializablePageImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 @AllArgsConstructor
 @Repository
-public class ConcertItemsRedisPort implements CacheRepository {
+public class ConcertItemsRedisPort implements CacheListRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;

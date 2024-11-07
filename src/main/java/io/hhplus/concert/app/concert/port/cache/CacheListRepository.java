@@ -1,6 +1,6 @@
 package io.hhplus.concert.app.concert.port.cache;
 
-public interface CacheRepository {
+public interface CacheListRepository {
     Long clearCache();
     <T> T get(String cacheKey, Class<T> cls);
     <T> Iterable<T> getList(String cacheKey, Class<T> cls);
