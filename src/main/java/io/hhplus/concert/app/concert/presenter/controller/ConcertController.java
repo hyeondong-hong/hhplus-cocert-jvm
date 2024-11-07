@@ -94,7 +94,7 @@ public class ConcertController {
         return reservationOutput.reservationResult();
     }
 
-    @PatchMapping("/{concertId}/schedules/{concertScheduleId}/seats/{concertSeatId}/reservations/{reservationId}")
+    @PatchMapping("/{concertId}/schedules/{concertScheduleId}/seats/{concertSeatId}/reservations/{reservationId}/payment")
     public PurchaseResult purchase(
             @RequestHeader("Authorization") String keyUuid,
             @PathVariable @Min(1) Long concertId,
