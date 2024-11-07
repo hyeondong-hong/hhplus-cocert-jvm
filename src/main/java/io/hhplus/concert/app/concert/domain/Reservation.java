@@ -33,15 +33,11 @@ public class Reservation {
     @Column(nullable = false)
     private Long paymentId;
 
-    public void setPending() {
-        this.status = ReservationStatus.PENDING;
-    }
-
-    public void setCompleted() {
+    public void complete() {
         this.status = ReservationStatus.COMPLETE;
     }
 
-    public void setCancelled() {
+    public void cancel() {
         this.status = ReservationStatus.CANCELLED;
     }
 }

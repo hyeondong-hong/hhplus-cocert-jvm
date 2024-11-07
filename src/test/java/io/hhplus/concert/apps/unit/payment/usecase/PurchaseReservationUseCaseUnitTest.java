@@ -176,7 +176,7 @@ public class PurchaseReservationUseCaseUnitTest {
     @Test
     @DisplayName("이미 완료된 예약에 대해 재요청을 하면 예외가 발생한다")
     public void completedReservation() {
-        reservation.setCompleted();
+        reservation.complete();
 
         IllegalStateException e = assertThrows(
                 IllegalStateException.class,
@@ -189,7 +189,7 @@ public class PurchaseReservationUseCaseUnitTest {
     @Test
     @DisplayName("이미 취소된 예약에 대해 요청을 하면 예외가 발생한다")
     public void cancelledReservation() {
-        reservation.setCancelled();
+        reservation.cancel();
 
         IllegalStateException e = assertThrows(
                 IllegalStateException.class,

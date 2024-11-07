@@ -55,7 +55,7 @@ public class ReleaseReservationsUseCase {
         List<Reservation> reservations = originReservations.stream().filter(
                 reservation -> paymentIdSet.contains(reservation.getPaymentId())).toList();
 
-        reservations.forEach(Reservation::setCancelled);
+        reservations.forEach(Reservation::cancel);
 
         List<ConcertSeat> seats = concertSeatPort.getAllByIds(
                 reservations.stream().map(Reservation::getConcertSeatId).toList());

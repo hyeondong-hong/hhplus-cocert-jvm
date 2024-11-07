@@ -110,7 +110,7 @@ public class PurchaseReservationUseCase {
                         .build()
         );
 
-        reservation.setCompleted();
+        reservation.complete();
         payment.pay();
 
         reservationPort.save(reservation);
