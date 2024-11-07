@@ -14,7 +14,6 @@ import io.hhplus.concert.config.aop.annotation.RedisLock;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -38,7 +37,7 @@ public class PendingChargeUserPointUseCase {
             PendingPointChargeResult pendingPointChargeResult
     ) { }
 
-    @RedisLock(key = "Point", dtoName = "input", fields = {"keyUuid"})
+    @RedisLock(transactional = true, key = "Point", dtoName = "input", fields = {"keyUuid"})
     public Output execute(Input input) {
         UserPoint userPoint = userPointPort.getByUserId(input.userId());
 

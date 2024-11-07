@@ -5,8 +5,6 @@ import io.hhplus.concert.app.user.port.UserPointPort;
 import io.hhplus.concert.app.user.port.UserPort;
 import io.hhplus.concert.app.user.usecase.dto.UserPointResult;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;

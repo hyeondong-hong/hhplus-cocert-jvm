@@ -17,7 +17,6 @@ import io.hhplus.concert.config.aop.annotation.RedisLock;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -44,7 +43,7 @@ public class ReservationSeatUseCase {
             ReservationResult reservationResult
     ) { }
 
-    @RedisLock(key = "Reservation", dtoName = "input", fields = {"concertId", "concertScheduleId", "concertSeatId"})
+    @RedisLock(transactional = true, key = "Reservation", dtoName = "input", fields = {"concertSeatId"})
     public Output execute(Input input) {
 
         Token token = tokenPort.getByKey(input.keyUuid());

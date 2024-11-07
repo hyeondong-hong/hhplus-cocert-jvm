@@ -11,4 +11,5 @@ public @interface RedisLock {
     String key() default "default";
     String dtoName() default "";
     String[] fields() default {};
+    boolean transactional() default false;
 }

@@ -23,7 +23,6 @@ import io.hhplus.concert.config.aop.annotation.RedisLock;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -56,7 +55,7 @@ public class PurchaseReservationUseCase {
             PurchaseResult purchaseResult
     ) { }
 
-    @RedisLock(key = "Point", dtoName = "input", fields = {"keyUuid"})
+    @RedisLock(transactional = true, key = "Point", dtoName = "input", fields = {"keyUuid"})
     public Output execute(Input input) {
 
         concertPort.existsOrThrow(input.concertId());

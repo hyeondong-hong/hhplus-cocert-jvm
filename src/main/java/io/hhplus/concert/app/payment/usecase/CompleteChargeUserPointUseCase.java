@@ -19,7 +19,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -45,7 +44,7 @@ public class CompleteChargeUserPointUseCase {
             PointChangeResult pointChangeResult
     ) { }
 
-    @RedisLock(key = "Point", dtoName = "input", fields = {"keyUuid"})
+    @RedisLock(transactional = true, key = "Point", dtoName = "input", fields = {"keyUuid"})
     public Output execute(Input input) {
         Payment payment = paymentPort.getByPaymentKey(input.paymentKey());
         switch (payment.getStatus()) {

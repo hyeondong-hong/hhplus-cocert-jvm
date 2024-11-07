@@ -35,7 +35,11 @@ public class RedisLockAspect {
         try {
             lock.lock();
             log.debug("Lock 취득 성공: thread-id = {}, key = {}", threadId, key);
-            return transactionalJoinPoint.execute(joinPoint);
+            if (redisLock.transactional()) {
+                return transactionalJoinPoint.execute(joinPoint);
+            } else {
+                return joinPoint.proceed();
+            }
         } finally {
             lock.unlock();
         }
@@ -58,7 +62,7 @@ public class RedisLockAspect {
                     }
                 }
                 if (!fieldFound) {
-                    throw new IllegalArgumentException("Field parameter not found: " + fieldName);
+                    throw new RuntimeException("Field parameter not found: " + fieldName);
                 }
             }
             return joiner.toString();
@@ -78,7 +82,7 @@ public class RedisLockAspect {
                     return joiner.toString();
                 }
             }
-            throw new IllegalArgumentException("Key parameter not found: " + dtoName);
+            throw new RuntimeException("Key parameter not found: " + dtoName);
         }
     }
 }

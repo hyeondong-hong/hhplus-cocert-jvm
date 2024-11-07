@@ -7,8 +7,6 @@ import io.hhplus.concert.app.user.domain.enm.PointTransactionStatus;
 import io.hhplus.concert.app.user.port.PointTransactionPort;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
