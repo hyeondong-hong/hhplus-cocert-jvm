@@ -18,6 +18,7 @@ import java.util.Optional;
 @Repository
 public interface ServiceEntryJpaRepository extends JpaRepository<ServiceEntry, Long> {
 
+    @Query("SELECT e.tokenId FROM ServiceEntry e WHERE e.enrolledAt < :baseDateTime")
     List<Long> findAllTokenIdByEnrolledAtLessThan(LocalDateTime baseDateTime);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
