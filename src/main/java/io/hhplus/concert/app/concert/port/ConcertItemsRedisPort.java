@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hhplus.concert.app.concert.domain.Concert;
 import io.hhplus.concert.app.concert.domain.ConcertSchedule;
-import io.hhplus.concert.app.concert.port.cache.CacheListRepository;
 import io.hhplus.concert.config.dto.SerializablePageImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,13 +18,12 @@ import java.util.concurrent.TimeUnit;
 
 @AllArgsConstructor
 @Repository
-public class ConcertItemsRedisPort implements CacheListRepository {
+public class ConcertItemsRedisPort {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
     private static final String CACHE_PREFIX = "cache:concert:items:";
 
-    @Override
     public Long clearCache() {
         Set<String> keys = redisTemplate.keys(CACHE_PREFIX + "*");
         if (keys == null) {
@@ -34,7 +32,6 @@ public class ConcertItemsRedisPort implements CacheListRepository {
         return redisTemplate.delete(keys);
     }
 
-    @Override
     public <T> T get(
             String cacheKey,
             Class<T> cls
@@ -42,7 +39,6 @@ public class ConcertItemsRedisPort implements CacheListRepository {
         return cls.cast(redisTemplate.opsForValue().get(cacheKey));
     }
 
-    @Override
     public <T> Iterable<T> getList(String cacheKey, Class<T> cls) {
         Object value = redisTemplate.opsForValue().get(cacheKey);
         if (value == null) {
@@ -64,7 +60,6 @@ public class ConcertItemsRedisPort implements CacheListRepository {
         }
     }
 
-    @Override
     public void set(
             String cacheKey,
             Object value
