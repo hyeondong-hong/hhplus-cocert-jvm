@@ -2,6 +2,7 @@ package io.hhplus.concert.app.user.usecase;
 
 import io.hhplus.concert.app.user.domain.ServiceEntry;
 import io.hhplus.concert.app.user.domain.Token;
+import io.hhplus.concert.app.user.port.QueueRedisPort;
 import io.hhplus.concert.app.user.port.ServiceEntryPort;
 import io.hhplus.concert.app.user.port.TokenPort;
 import lombok.AllArgsConstructor;
@@ -17,8 +18,10 @@ import java.time.LocalDateTime;
 @Service
 public class CheckTokenEnrolledUseCase {
 
-    private final ServiceEntryPort serviceEntryPort;
+//    private final ServiceEntryPort serviceEntryPort;
     private final TokenPort tokenPort;
+
+    private final QueueRedisPort queueRedisPort;
 
     public record Input(
             String keyUuid
@@ -39,35 +42,57 @@ public class CheckTokenEnrolledUseCase {
             throw new BadCredentialsException("Token Expired");
         }
 
-        ServiceEntry serviceEntry;
-        if (serviceEntryPort.existsByTokenId(token.getId())) {
-            // 등록된 토큰인 경우 불러오기
-            log.debug("등록된 토큰: token = {}", token.getKeyUuid());
-            serviceEntry = serviceEntryPort.getByTokenId(token.getId());
-        } else {
-            // 미등록 토큰인 경우 등록
-            log.debug("미등록 토큰: token = {}", token.getKeyUuid());
-            serviceEntry = serviceEntryPort.save(
-                    ServiceEntry.builder()
-                            .tokenId(token.getId())
-                            .entryAt(LocalDateTime.now())
-                            .build()
+        Boolean enrolled = queueRedisPort.getEnrolled(input.keyUuid());
+        if (!enrolled) {
+            // 미진입 상태 -> 403
+            Long rank = queueRedisPort.getEntryRank(input.keyUuid());
+
+            if (rank == null) {
+                // 미등록 토큰인 경우 등록
+                queueRedisPort.entry(input.keyUuid());
+                rank = queueRedisPort.getEntryRank(input.keyUuid());
+            }
+
+            return new Output(
+                    false,
+                    rank
             );
         }
 
-        boolean isAuthenticated = true;
-        Long rank = null;
-
-        if (!serviceEntry.isEnrolled()) {
-            // 미진입 상태 -> 403
-            log.debug("진입시도 토큰: {}", token.getKeyUuid());
-            isAuthenticated = false;
-            rank = serviceEntryPort.getEntryRankByTokenId(token.getId());
-        }
-
         return new Output(
-                isAuthenticated,
-                rank
+                true,
+                null
         );
+
+//        ServiceEntry serviceEntry;
+//        if (serviceEntryPort.existsByTokenId(token.getId())) {
+//            // 등록된 토큰인 경우 불러오기
+//            log.debug("등록된 토큰: token = {}", token.getKeyUuid());
+//            serviceEntry = serviceEntryPort.getByTokenId(token.getId());
+//        } else {
+//            // 미등록 토큰인 경우 등록
+//            log.debug("미등록 토큰: token = {}", token.getKeyUuid());
+//            serviceEntry = serviceEntryPort.save(
+//                    ServiceEntry.builder()
+//                            .tokenId(token.getId())
+//                            .entryAt(LocalDateTime.now())
+//                            .build()
+//            );
+//        }
+//
+//        boolean isAuthenticated = true;
+//        Long rank = null;
+//
+//        if (!serviceEntry.isEnrolled()) {
+//            // 미진입 상태 -> 403
+//            log.debug("진입시도 토큰: {}", token.getKeyUuid());
+//            isAuthenticated = false;
+//            rank = serviceEntryPort.getEntryRankByTokenId(token.getId());
+//        }
+//
+//        return new Output(
+//                isAuthenticated,
+//                rank
+//        );
     }
 }
