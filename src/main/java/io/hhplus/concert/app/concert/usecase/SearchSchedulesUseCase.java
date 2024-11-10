@@ -1,6 +1,7 @@
 package io.hhplus.concert.app.concert.usecase;
 
 import io.hhplus.concert.app.concert.domain.ConcertSchedule;
+import io.hhplus.concert.app.concert.port.ConcertItemsRedisPort;
 import io.hhplus.concert.app.concert.port.ConcertPort;
 import io.hhplus.concert.app.concert.port.ConcertSchedulePort;
 import io.hhplus.concert.app.concert.usecase.dto.ConcertScheduleResult;
@@ -18,6 +19,8 @@ public class SearchSchedulesUseCase {
     private final ConcertPort concertPort;
     private final ConcertSchedulePort concertSchedulePort;
 
+    private final ConcertItemsRedisPort concertItemsRedisPort;
+
     public record Input(
             Long concertId,
             Pageable pageable
@@ -29,17 +32,31 @@ public class SearchSchedulesUseCase {
 
     public Output execute(Input input) {
 
-        concertPort.existsOrThrow(input.concertId());
-
-        Page<ConcertSchedule> concertPage = concertSchedulePort.findAllByConcertIdAndPageable(
+        Page<ConcertSchedule> concertSchedulePage = concertItemsRedisPort.getConcertSchedules(
                 input.concertId(),
                 input.pageable()
         );
+
+        if (concertSchedulePage == null) {
+            concertPort.existsOrThrow(input.concertId());
+
+            concertSchedulePage = concertSchedulePort.findAllByConcertIdAndPageable(
+                    input.concertId(),
+                    input.pageable()
+            );
+
+            concertItemsRedisPort.setConcertSchedules(
+                    input.concertId(),
+                    input.pageable(),
+                    concertSchedulePage
+            );
+        }
+
         return new Output(
-                concertPage.map(concert -> new ConcertScheduleResult(
-                        concert.getConcertId(),
-                        concert.getId(),
-                        concert.getScheduledAt()
+                concertSchedulePage.map(concertSchedule -> new ConcertScheduleResult(
+                        concertSchedule.getConcertId(),
+                        concertSchedule.getId(),
+                        concertSchedule.getScheduledAt()
                 ))
         );
     }
