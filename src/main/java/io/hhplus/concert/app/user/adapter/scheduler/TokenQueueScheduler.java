@@ -1,4 +1,4 @@
-package io.hhplus.concert.app.user.presenter.scheduler;
+package io.hhplus.concert.app.user.adapter.scheduler;
 
 import io.hhplus.concert.app.user.usecase.QueueEjectUseCase;
 import io.hhplus.concert.app.user.usecase.QueueEnrollUseCase;

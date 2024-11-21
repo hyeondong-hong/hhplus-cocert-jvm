@@ -1,4 +1,4 @@
-package io.hhplus.concert.app.user.presenter.controller;
+package io.hhplus.concert.app.user.adapter.controller;
 
 import io.hhplus.concert.app.payment.usecase.CompleteChargeUserPointUseCase;
 import io.hhplus.concert.app.payment.usecase.PendingChargeUserPointUseCase;
