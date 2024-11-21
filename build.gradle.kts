@@ -27,6 +27,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
     implementation("org.redisson:redisson-spring-boot-starter:3.23.4")
     compileOnly("org.projectlombok:lombok")
@@ -35,6 +36,7 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
 //    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("io.rest-assured:rest-assured:5.5.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
