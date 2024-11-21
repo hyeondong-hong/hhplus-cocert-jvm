@@ -1,7 +1,7 @@
 package io.hhplus.concert.app.concert.usecase;
 
 import io.hhplus.concert.app.concert.domain.ConcertSchedule;
-import io.hhplus.concert.app.concert.port.ConcertItemsRedisPort;
+import io.hhplus.concert.app.concert.port.ConcertItemsCachePort;
 import io.hhplus.concert.app.concert.port.ConcertPort;
 import io.hhplus.concert.app.concert.port.ConcertSchedulePort;
 import io.hhplus.concert.app.concert.usecase.dto.ConcertScheduleResult;
@@ -19,7 +19,7 @@ public class SearchSchedulesUseCase {
     private final ConcertPort concertPort;
     private final ConcertSchedulePort concertSchedulePort;
 
-    private final ConcertItemsRedisPort concertItemsRedisPort;
+    private final ConcertItemsCachePort concertItemsCachePort;
 
     public record Input(
             Long concertId,
@@ -32,7 +32,7 @@ public class SearchSchedulesUseCase {
 
     public Output execute(Input input) {
 
-        Page<ConcertSchedule> concertSchedulePage = concertItemsRedisPort.getConcertSchedules(
+        Page<ConcertSchedule> concertSchedulePage = concertItemsCachePort.getConcertSchedules(
                 input.concertId(),
                 input.pageable()
         );
@@ -45,7 +45,7 @@ public class SearchSchedulesUseCase {
                     input.pageable()
             );
 
-            concertItemsRedisPort.setConcertSchedules(
+            concertItemsCachePort.setConcertSchedules(
                     input.concertId(),
                     input.pageable(),
                     concertSchedulePage

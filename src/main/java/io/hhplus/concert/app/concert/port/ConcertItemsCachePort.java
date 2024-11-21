@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 @AllArgsConstructor
 @Repository
-public class ConcertItemsRedisPort {
+public class ConcertItemsCachePort {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
