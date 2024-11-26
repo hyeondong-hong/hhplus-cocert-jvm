@@ -1,8 +1,8 @@
-package io.hhplus.concert.apps.integration.kafka.infra;
+package io.hhplus.concert.apps.integration.infra.kafka;
 
-import io.hhplus.concert.app.kafka.adapter.consumer.KafkaSampleConsumer;
-import io.hhplus.concert.app.kafka.domain.event.KafkaSampleEvent;
-import io.hhplus.concert.app.kafka.port.producer.KafkaSampleProducer;
+import io.hhplus.concert.app.kafka.adapter.consumer.SampleConsumer;
+import io.hhplus.concert.app.kafka.domain.event.SampleEvent;
+import io.hhplus.concert.config.infra.kafka.KafkaProducer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +19,16 @@ import static org.mockito.Mockito.verify;
 public class KafkaTest {
 
     @Autowired
-    private KafkaSampleProducer kafkaSampleProducer;
+    private KafkaProducer kafkaProducer;
 
     @SpyBean
-    private KafkaSampleConsumer kafkaSampleConsumer;
+    private SampleConsumer sampleConsumer;
 
     @Test
     @DisplayName("카프카를 통해 이벤트를 발행하고 소비한다")
     public void test_Kafka() {
-        kafkaSampleProducer.publish(new KafkaSampleEvent("event-name", "Hello, Kafka!"));
-        verify(kafkaSampleConsumer, timeout(5000L)).consume(any(KafkaSampleEvent.class));
+        kafkaProducer.publish(SampleConsumer.TOPIC, new SampleEvent("event-name", "Hello, Kafka!"));
+        verify(sampleConsumer, timeout(5000L)).consume(any(SampleEvent.class));
     }
 
 }

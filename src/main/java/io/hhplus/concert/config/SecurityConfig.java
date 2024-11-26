@@ -1,6 +1,6 @@
 package io.hhplus.concert.config;
 
-import io.hhplus.concert.config.component.ConcertAuthenticationEntryPoint;
+import io.hhplus.concert.config.security.ConcertAuthenticationEntryPoint;
 import io.hhplus.concert.config.filter.AuthorizationHeaderFilter;
 import io.hhplus.concert.app.user.usecase.CheckTokenEnrolledUseCase;
 import lombok.AllArgsConstructor;

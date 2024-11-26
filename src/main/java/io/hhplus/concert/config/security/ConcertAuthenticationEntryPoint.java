@@ -1,4 +1,4 @@
-package io.hhplus.concert.config.component;
+package io.hhplus.concert.config.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

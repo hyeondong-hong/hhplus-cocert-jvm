@@ -1,6 +1,6 @@
 package io.hhplus.concert.app.kafka.domain.event;
 
-public record KafkaSampleEvent(
+public record SampleEvent(
         String sampleName,
         String someMessage
 ) {
