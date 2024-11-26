@@ -1,4 +1,4 @@
-package io.hhplus.concert.app.concert.presenter.controller;
+package io.hhplus.concert.app.concert.adapter.controller;
 
 import io.hhplus.concert.app.concert.usecase.ReservationSeatUseCase;
 import io.hhplus.concert.app.concert.usecase.SearchAvailableSeatsUseCase;

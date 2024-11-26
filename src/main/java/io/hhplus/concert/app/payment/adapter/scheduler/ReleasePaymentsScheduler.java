@@ -1,4 +1,4 @@
-package io.hhplus.concert.app.payment.presenter.scheduler;
+package io.hhplus.concert.app.payment.adapter.scheduler;
 
 import io.hhplus.concert.app.concert.usecase.ReleaseReservationsUseCase;
 import io.hhplus.concert.app.user.usecase.ReleasePointTransactionsUseCase;
